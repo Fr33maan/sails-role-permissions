@@ -1,0 +1,5 @@
+./test/**/*.test.js
+--reporter dot
+--ui bdd
+--recursive
+--compilers :./test/babel-setup.js
