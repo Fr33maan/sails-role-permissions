@@ -1,6 +1,6 @@
 {
   "name": "sails-hook-role-permissions",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A sails hook to manager role based permissions at action/row level",
   "main": "lib/index.js",
   "scripts": {
@@ -9,8 +9,23 @@
     "test": "npm run compile && mocha",
     "w": "npm run compile && mocha --watch"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "l1br3",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/l1br3/sails-hook-role-permissions.git"
+  },
+  "homepage": "https://github.com/l1br3/sails-hook-role-permissions#readme",
+  "bugs": {
+    "url": "https://github.com/l1br3/sails-hook-role-permissions/issues"
+  },
+  "keywords": [
+    "sails",
+    "permission",
+    "acl",
+    "role",
+    "hook"
+  ],
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-core": "^6.21.0",

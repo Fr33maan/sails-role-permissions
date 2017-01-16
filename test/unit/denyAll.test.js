@@ -8,8 +8,6 @@ import SailsServer  from '../util/SailsServer'
 import policies     from '../config/denyAllPolicies'
 import roles        from '../config/roles'
 
-// Internal module code
-// import
 
 
 let s = new SailsServer()
