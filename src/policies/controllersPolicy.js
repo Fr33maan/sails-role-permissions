@@ -1,19 +1,15 @@
 
-import {
-  controllerNotFound,
-  controllerSetToFalse,
-  controllerSetToGuest,
-  controllerForbiddenForGuests,
-  controllerRankIsTooLow
-
-} from '../config/errorMessages'
-
 import roleUtil from '../util/roleUtil'
+import messageUtil from '../util/messageUtil'
 
 export default function (req, config) {
 
   const controller = req.options.controller
 
+  const reqRole   = req.user ? (req.user.role || 'user') : 'guest'
+  const askedRole = config[controller]
+
+  const errorMessages = messageUtil.generateControllerErrorMessages(controller, reqRole, askedRole)
 
   // ------------------
   // ----- OBJECT -----
@@ -33,12 +29,12 @@ export default function (req, config) {
 
   // If config.all is deny and there is no config for the asked controller
   if(config.all === false && !(controller in config)){
-    throw new Error(controllerNotFound) //Deny
+    throw new Error(errorMessages.notFound) //Deny
   }
 
   // If controller policy is set to false
   if(config[controller] === false){
-    throw new Error(controllerSetToFalse) //Deny
+    throw new Error(errorMessages.setToFalse) //Deny
   }
 
 
@@ -46,24 +42,20 @@ export default function (req, config) {
   // ----- STRING -----
   // ------------------
 
-  const askedRole = config[controller]
-  const reqRole   = req.user ? (req.user.role || 'user') : 'guest'
-
-
   // If config.role is guest we only allow guest to access
   if(askedRole === 'guest'){
     if(reqRole === 'guest'){
       return true //Allow
 
     }else{
-      throw new Error(controllerSetToGuest + reqRole) //Deny
+      throw new Error(errorMessages.setToGuest) //Deny
     }
   }
 
 
   // Deny guests
   if(reqRole === 'guest' && askedRole !== 'guest'){
-    throw new Error(controllerForbiddenForGuests) //Deny
+    throw new Error(errorMessages.forbiddenForGuests) //Deny
   }
 
 
@@ -72,7 +64,7 @@ export default function (req, config) {
     return true
 
   }else{
-    throw new Error(controllerRankIsTooLow) // Deny
+    throw new Error(errorMessages.rankIsTooLow) // Deny
 
   }
 

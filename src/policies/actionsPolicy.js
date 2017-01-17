@@ -1,22 +1,26 @@
 
-import {
-  controllerNotFound,
-  controllerNotAllowed
-} from '../config/errorMessages'
 
 import roleUtil from '../util/roleUtil'
+import messageUtil from '../util/messageUtil'
 
 export default function (req, config) {
 
   const controller = req.options.controller
+  const action = req.options.action
 
+  const reqRole   = req.user ? (req.user.role || 'user') : 'guest'
+  const askedRole = config[controller][action]
+
+  const actionConfig = config[controller][action]
+
+  const errorMessages = messageUtil.generateActionErrorMessages(controller, action, reqRole, askedRole)
 
   // ------------------
   // ----- OBJECT -----
   // ------------------
 
-  // config[controller] is an object (means that we must use lower level policy)
-  if(typeof config[controller] === 'object') return false //Pending
+  // config[controller][action] is an object (means that we must use lower level policy)
+  if(typeof config[controller][action] === 'object') return false //Pending
 
 
 
@@ -24,27 +28,24 @@ export default function (req, config) {
   // ---- BOOLEAN -----
   // ------------------
 
-  // Bypass if policy is "true" or if all is true and no controller policy exists
-  if(config[controller] === true || (config.all === true && !(controller in config))) return true //Allow
+  // Bypass if policy is "true" or if wildcard is true and no controller[action] policy exists
+  if(config[controller][action] === true || (config.all === true && !(action in config[controller]))) return true //Allow
 
-  // If config.all is deny and there is no config for the asked controller
-  if(config.all === false && !(controller in config)){
-    throw new Error(controllerNotFound) //Deny
+  // If wildcard is deny and there is no config for the asked controller[action]
+  if(config.all === false && !(action in config[controller])){
+    throw new Error(errorMessages.notFound) //Deny
   }
 
-  // If controller policy is set to false
-  if(config[controller] === false){
-    throw new Error(controllerNotAllowed + 'controller policy set to false') //Deny
+  // If controller[action] policy is set to false
+  if(config[controller][action] === false){
+    throw new Error(errorMessages.setToFalse) //Deny
   }
+
 
 
   // ------------------
   // ----- STRING -----
   // ------------------
-
-  const askedRole = config[controller]
-  const reqRole   = req.user ? (req.user.role || 'user') : 'guest'
-
 
   // If config.role is guest we only allow guest to access
   if(askedRole === 'guest'){
@@ -52,14 +53,14 @@ export default function (req, config) {
       return true //Allow
 
     }else{
-      throw new Error(controllerNotAllowed + 'asked role is guest and req is ' + reqRole) //Deny
+      throw new Error(errorMessages.actionSetToGuest + reqRole) //Deny
     }
   }
 
 
   // Deny guests
   if(reqRole === 'guest' && askedRole !== 'guest'){
-    throw new Error(controllerNotAllowed + 'guest are not allowed') //Deny
+    throw new Error(errorMessages.actionForbiddenForGuests) //Deny
   }
 
 
@@ -68,12 +69,9 @@ export default function (req, config) {
     return true
 
   }else{
-    throw new Error(controllerNotAllowed + 'asked role is above user permission') // Deny
+    throw new Error(errorMessages.actionRankIsTooLow) // Deny
 
   }
-
-
-
 
 
   return false //Pending - call next policy

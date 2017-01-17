@@ -12,9 +12,9 @@ export default function(req, res, next, injectedConfig){
 
   try{
     if(controllersPolicy(req, config))  return next() //Bypass other policies if policy returns true
-    if(actionsPolicy(req, config))      return next() 
+    if(actionsPolicy(req, config))      return next()
 
-    next()
+    throw new Error('request has not been explicitely allowed and this might be a security issue -> Access Denied')
   }catch(e){
     res.forbidden(e)
   }

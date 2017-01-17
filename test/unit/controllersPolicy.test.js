@@ -10,7 +10,7 @@ import roles             from '../../src/config/defaultRoles'
 
 
 // Internal config
-import * as errorMessages from '../../src/config/errorMessages'
+import messageUtil from '../../src/util/messageUtil'
 
 
 
@@ -27,8 +27,9 @@ describe('controllersPolicy :: Deny', function(){
     const config = {
       all : false
     }
+    const errorMessages = messageUtil.generateControllerErrorMessages('test', 'guest')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerNotFound)
+    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.notFound)
   })
 
   it("should deny access when '*' policy is set to true but controller policy is set to false", function(){
@@ -38,8 +39,9 @@ describe('controllersPolicy :: Deny', function(){
       all : true,
       test : false
     }
+    const errorMessages = messageUtil.generateControllerErrorMessages('test', 'guest')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerSetToFalse)
+    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.setToFalse)
   })
 
 
@@ -50,8 +52,9 @@ describe('controllersPolicy :: Deny', function(){
       all : true,
       test : 'guest'
     }
+    const errorMessages = messageUtil.generateControllerErrorMessages('test', 'user')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerSetToGuest)
+    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.setToGuest)
   })
 
   it("should deny when asking a guest controller and logged as a user (without role)", function(){
@@ -61,8 +64,9 @@ describe('controllersPolicy :: Deny', function(){
       all : true,
       test : 'guest'
     }
+    const errorMessages = messageUtil.generateControllerErrorMessages('test', 'user')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerSetToGuest)
+    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.setToGuest)
   })
 
   it("should deny when asking a role above req.role", function(){
@@ -73,8 +77,9 @@ describe('controllersPolicy :: Deny', function(){
       all : true,
       test : 'admin'
     }
+    const errorMessages = messageUtil.generateControllerErrorMessages('test', 'user')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerNotAllowed)
+    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.notAllowed)
   })
 
   it("should deny when asking without role", function(){
@@ -85,8 +90,9 @@ describe('controllersPolicy :: Deny', function(){
       all : true,
       test : 'user'
     }
+    const errorMessages = messageUtil.generateControllerErrorMessages('test', 'guest')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerForbiddenForGuests)
+    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.forbiddenForGuests)
   })
 })
 
