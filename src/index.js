@@ -1,12 +1,16 @@
 
 import permissionPolicies from './policies'
-
+import defaultRoles       from './config/defaultRoles'
 
 module.exports = function (sails) {
   return {
 
     configure: function(){
       if(!sails.config.permissions) sails.config.permissions = {}
+      if(!sails.config.permissions.roles) sails.config.permissions.roles = defaultRoles
+
+      // Remove "guest" role from roles if it has been added by user
+      sails.config.permissions.roles = sails.config.permissions.roles.filter(role => role !== 'guest')
     },
 
 
@@ -16,12 +20,6 @@ module.exports = function (sails) {
 
       // Flavour sails policies with additional permissionsPolicies
       sails.config.policies = _.each(policies, this.addHookPolicies)
-
-      // Set global permissions policy to false when no global policy has been found neither in config.policies nor config.permissions
-      if(!('*' in sails.config.policies) && (!('*' in sails.config.permissions) || !('all' in sails.config.permissions))){
-        sails.config.permissions.all = false
-        sails.config.permissions['*'] = false
-      }
 
       next()
     },

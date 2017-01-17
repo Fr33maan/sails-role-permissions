@@ -1,7 +1,20 @@
 
-export default function (req, res, injectedSails) {
+import {
+  controllerNotFound,
+  controllerNotAllowed
+} from '../config/errorMessages'
 
-  const _sails = sails || injectedSails
+export default function (req, config) {
 
+  const controller = req.options.controller
 
+  if(config.all === false && !(controller in config)){
+    throw new Error(controllerNotFound)
+  }
+
+  if(config[controller] === false){
+    throw new Error(controllerNotAllowed + 'controller policy set to false')
+  }
+
+  return true
 }

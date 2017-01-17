@@ -2,16 +2,16 @@ import controllersPolicy  from './controllersPolicy'
 import actionsPolicy      from './actionsPolicy'
 
 
-export default function(req, res, next, injectedSails){
+export default function(req, res, next, injectedConfig){
 
-  let _sails = sails || injectedSails
+  let config = sails ? sails.config.permissions : injectedConfig
 
   function wrapper(fn){
-      return fn(req, res, _sails)
+      return fn(req, res, config)
   }
 
   try{
-    controllersPolicy(req, res, _sails)
+    if(controllersPolicy(req, config)) return next() //Bypass other policies if policy returns true
 
     next()
   }catch(e){

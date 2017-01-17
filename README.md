@@ -12,12 +12,18 @@ The module add the policy after your policies in config/policies.js.
 
 `sails-hook-role-permissions` will use your policies global '\*' setting as a global setting. It means that if you allow all ControllerActions in sails.config.policies, the hook will do the same.  
 The hook will prevail over your own policies. It means that if you don't configure it to allow asked routes, they will use your sails.config.policies['\*'] setting (aka reject everything if you set it to false, even if your previous policies was allowing the request).  
-You can also configure a global policy directly in `sails.config.permissions` exactly the same way as you do in `sails.config.policies`. By default, the global parameter is set to false, it means that if you forget to set it in both `sails.config.policies` and `sails.config.permissions`, your app wont work.  
+You can also configure a global policy directly in `sails.config.permissions` exactly the same way as you do in `sails.config.policies`.  
+By default, `sails.js` set the global parameter to true, it means that if you forget to set it in both `sails.config.policies` and `sails.config.permissions`, your app will allow every route.  
 
 
 By default `sails-hook-role-permissions` will deny creation of autoset attributes (createdAt, updatedAt, id) so you don't need to specify it in your config file.  
 If you set a parameter to `guest` it means that only a guest (user without role) can use this attribute. If you want the attribute to be available from rank `guest`, set it to true.  
 `sails-hook-role-permissions` use **controllers** and not **models** for configuration. It means that you can have a controller without a model associated to it and configure role-permissions for it.  
+
+
+When `sails-hook-role-permissions` reject a request it does it with res.forbidden by passing it an Error with a reason so you can use your customs responses.  
+The hook try to throw explicit error message so you can quickly understand what is happening with it.  
+
 
 ```javascript
 
@@ -42,15 +48,25 @@ module.exports.permissions = {
   }
 }
 
+// Guest (not a user) is a reserved keyword and is implicitely set up, you don't need to specify it
+// Sort highest roles from the top to the bottom
+sails.config.permissions.roles = [
+  'admin',
+  'moderator',
+  'follower',
+  'user'
+]
+
 ```
 ---
 
 
 ## Composition
-`sails-hook-role-permissions` will add 3 policies on every Controller.action you define in your sails app
+`sails-hook-role-permissions` will add 4 policies on every Controller.action you define in your sails app
 
-#### Models
-First it will check if the user can request the model
+#### Controllers
+`sails-hook-role-permissions` make controls by controller name.  
+First it will check if the user can request the controller.
 
 #### Actions
 Then it will check that the requested action is allowed to the role in req.user
@@ -65,8 +81,8 @@ Finally it will filter request and/or results depending on action (filter req fo
 ---
 
 ## Flow
-- modelsPerm
-- actionsPerm
+- controllersPolicy
+- actionsPolicy
 - parametersPerm
 - attributesPerm
 - controllerAction / blueprint call
@@ -82,5 +98,6 @@ Finally it will filter request and/or results depending on action (filter req fo
 
 
 ## Todo
-- add test for sails integration
-- row level permissions
+- add cache for requests
+- attribute level permissions
+- make role field custumizable
