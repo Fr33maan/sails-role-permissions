@@ -39,7 +39,7 @@ describe('controllersPolicy :: Deny', function(){
       test : false
     }
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerNotAllowed)
+    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerSetToFalse)
   })
 
 
@@ -51,7 +51,7 @@ describe('controllersPolicy :: Deny', function(){
       test : 'guest'
     }
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerNotAllowed)
+    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerSetToGuest)
   })
 
   it("should deny when asking a guest controller and logged as a user (without role)", function(){
@@ -62,7 +62,7 @@ describe('controllersPolicy :: Deny', function(){
       test : 'guest'
     }
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerNotAllowed)
+    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerSetToGuest)
   })
 
   it("should deny when asking a role above req.role", function(){
@@ -75,6 +75,18 @@ describe('controllersPolicy :: Deny', function(){
     }
 
     expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerNotAllowed)
+  })
+
+  it("should deny when asking without role", function(){
+
+    const req  = {options : {controller : 'test'}}
+    const config = {
+      roles,
+      all : true,
+      test : 'user'
+    }
+
+    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.controllerForbiddenForGuests)
   })
 })
 

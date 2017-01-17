@@ -11,7 +11,8 @@ export default function(req, res, next, injectedConfig){
   }
 
   try{
-    if(controllersPolicy(req, config)) return next() //Bypass other policies if policy returns true
+    if(controllersPolicy(req, config))  return next() //Bypass other policies if policy returns true
+    if(actionsPolicy(req, config))      return next() 
 
     next()
   }catch(e){

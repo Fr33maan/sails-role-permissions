@@ -1,7 +1,11 @@
 
 import {
   controllerNotFound,
-  controllerNotAllowed
+  controllerSetToFalse,
+  controllerSetToGuest,
+  controllerForbiddenForGuests,
+  controllerRankIsTooLow
+
 } from '../config/errorMessages'
 
 import roleUtil from '../util/roleUtil'
@@ -34,7 +38,7 @@ export default function (req, config) {
 
   // If controller policy is set to false
   if(config[controller] === false){
-    throw new Error(controllerNotAllowed + 'controller policy set to false') //Deny
+    throw new Error(controllerSetToFalse) //Deny
   }
 
 
@@ -52,14 +56,14 @@ export default function (req, config) {
       return true //Allow
 
     }else{
-      throw new Error(controllerNotAllowed + 'asked role is guest and req is ' + reqRole) //Deny
+      throw new Error(controllerSetToGuest + reqRole) //Deny
     }
   }
 
 
   // Deny guests
   if(reqRole === 'guest' && askedRole !== 'guest'){
-    throw new Error(controllerNotAllowed + 'guest are not allowed') //Deny
+    throw new Error(controllerForbiddenForGuests) //Deny
   }
 
 
@@ -68,12 +72,9 @@ export default function (req, config) {
     return true
 
   }else{
-    throw new Error(controllerNotAllowed + 'asked role is above user permission') // Deny
+    throw new Error(controllerRankIsTooLow) // Deny
 
   }
-
-
-
 
 
   return false //Pending - call next policy
