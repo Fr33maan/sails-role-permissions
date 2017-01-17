@@ -1,10 +1,7 @@
 
-export default function (req) {
+export default function (req, res, injectedSails) {
 
-  return new Promise((resolve, reject) => {
-
-    return true
+  const _sails = sails || injectedSails
 
 
-  })
 }

@@ -1,14 +1,20 @@
-import modelsPolicy from './modelsPolicy'
-import actionsPolicy from './actionsPolicy'
+import controllersPolicy  from './controllersPolicy'
+import actionsPolicy      from './actionsPolicy'
 
 
-export default function(req, res, next){
+export default function(req, res, next, injectedSails){
+
+  let _sails = sails || injectedSails
 
   function wrapper(fn){
-      return fn(req)
+      return fn(req, res, _sails)
   }
 
-  modelsPolicy(req)
-  .then(wrapper(actionsPolicy))
-  .then(next)
+  try{
+    controllersPolicy(req, res, _sails)
+
+    next()
+  }catch(e){
+    res.forbidden(e)
+  }
 }
