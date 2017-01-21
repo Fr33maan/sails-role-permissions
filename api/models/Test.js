@@ -4,7 +4,10 @@ module.exports = {
   attributes : {
     name : 'string',
     email : 'string',
-    password: 'string'
+    password: 'string',
+    Nocontroller : {
+      collection : 'nocontroller',
+    }
   }
 
 }
