@@ -9,7 +9,8 @@ export default function (req, config) {
   const action = req.options.action
 
   const reqRole   = req.user ? (req.user.role || 'user') : 'guest'
-  const askedRole = config[controller][action]
+  const askedRole = config[controller][action] || config.all
+
 
   const actionConfig = config[controller][action]
 
@@ -47,20 +48,31 @@ export default function (req, config) {
   // ----- STRING -----
   // ------------------
 
+  // Wildcard is a role
+  // Check if role exists and if controller[action] has no policy we use wildcard
+  if(typeof config.all === 'string' && roleUtil.roleExists(config.all, config.roles) && !config[controller][action]){
+    if(roleUtil.isRoleAllowed(reqRole, config.all, config.roles)){
+      return true
+
+    }else{
+      throw new Error(errorMessages.roleIsTooLow)
+    }
+  }
+
   // If config.role is guest we only allow guest to access
   if(askedRole === 'guest'){
     if(reqRole === 'guest'){
       return true //Allow
 
     }else{
-      throw new Error(errorMessages.actionSetToGuest + reqRole) //Deny
+      throw new Error(errorMessages.setToGuest) //Deny
     }
   }
 
 
   // Deny guests
   if(reqRole === 'guest' && askedRole !== 'guest'){
-    throw new Error(errorMessages.actionForbiddenForGuests) //Deny
+    throw new Error(errorMessages.forbiddenForGuests) //Deny
   }
 
 
@@ -69,7 +81,7 @@ export default function (req, config) {
     return true
 
   }else{
-    throw new Error(errorMessages.actionRankIsTooLow) // Deny
+    throw new Error(errorMessages.roleIsTooLow) // Deny
 
   }
 

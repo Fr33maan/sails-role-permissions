@@ -21,16 +21,47 @@ import messageUtil from '../../src/util/messageUtil'
 
 describe('controllersPolicy :: Deny', function(){
 
-  it("should deny access when '*' policy is set to false and no controller specific config was found", function(){
+  // -----------------
+  // --- WILDCARD ----
+  // -----------------
+  describe('wildcard' , function(){
+    it("should deny access when '*' policy is set to false and no controller specific config was found", function(){
 
-    const req  = {options : {controller : 'test'}}
-    const config = {
-      all : false
-    }
-    const errorMessages = messageUtil.generateControllerErrorMessages('test', 'guest')
+      const req  = {options : {controller : 'test'}}
+      const config = {
+        all : false
+      }
+      const errorMessages = messageUtil.generateControllerErrorMessages('test', 'guest')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.notFound)
+      expect(() => controllersPolicy(req, config)).to.throw(errorMessages.notFound)
+    })
+
+    it("should deny access when '*' policy is set to a too high role and no controller specific config was found", function(){
+
+      const req  = {options : {controller : 'test'}, user : {role : 'user'}}
+      const config = {
+        roles,
+        all : 'admin'
+      }
+      const errorMessages = messageUtil.generateControllerErrorMessages('test', 'user', 'admin')
+
+      expect(() => controllersPolicy(req, config)).to.throw(errorMessages.roleIsTooLow)
+    })
+
+    it("should deny access when '*' policy is set to a too high role and no controller specific config was found", function(){
+
+      const req  = {options : {controller : 'test'}}
+      const config = {
+        roles,
+        all : 'user'
+      }
+      const errorMessages = messageUtil.generateControllerErrorMessages('test', 'guest', 'user')
+
+      expect(() => controllersPolicy(req, config)).to.throw(errorMessages.roleIsTooLow)
+    })
   })
+
+
 
   it("should deny access when '*' policy is set to true but controller policy is set to false", function(){
 
@@ -124,47 +155,62 @@ describe('controllersPolicy :: Pending', function(){
 
 describe('controllersPolicy :: Allow', function(){
 
-  it("should allow access when wildcard is set to true", function(){
+  describe('wildcard', function(){
+      it("should allow access when wildcard is set to true", function(){
 
-    const req  = {options : {controller : 'test'}}
-    const config = {
-      all : true,
-    }
+        const req  = {options : {controller : 'test'}}
+        const config = {
+          all : true,
+        }
 
-    expect(controllersPolicy(req, config)).to.be.true
+        expect(controllersPolicy(req, config)).to.be.true
+      })
+
+      it("should allow access to req when wildcard is set to admin and controller does not exists", function(){
+
+        const req  = {options : {controller : 'test'}, user : {role : 'admin'}}
+        const config = {
+          roles,
+          all : 'admin'
+        }
+
+        expect(controllersPolicy(req, config)).to.be.true
+      })
   })
 
-  it("should allow access when controller is set to true", function(){
+  describe('constroller', function(){
+    it("should allow access when controller is set to true", function(){
 
-    const req  = {options : {controller : 'test'}}
-    const config = {
-      all : false,
-      test : true
-    }
+      const req  = {options : {controller : 'test'}}
+      const config = {
+        all : false,
+        test : true
+      }
 
-    expect(controllersPolicy(req, config)).to.be.true
-  })
+      expect(controllersPolicy(req, config)).to.be.true
+    })
 
-  it("should allow access to guest when controller is set to guest", function(){
+    it("should allow access to guest when controller is set to guest", function(){
 
-    const req  = {options : {controller : 'test'}}
-    const config = {
-      all : false,
-      test : 'guest'
-    }
+      const req  = {options : {controller : 'test'}}
+      const config = {
+        all : false,
+        test : 'guest'
+      }
 
-    expect(controllersPolicy(req, config)).to.be.true
-  })
+      expect(controllersPolicy(req, config)).to.be.true
+    })
 
-  it("should allow access to req when controller is set to lower role", function(){
+    it("should allow access to req when controller is set to lower role", function(){
 
-    const req  = {options : {controller : 'test'}, user : {role : 'admin'}}
-    const config = {
-      roles,
-      all : false,
-      test : 'user'
-    }
+      const req  = {options : {controller : 'test'}, user : {role : 'admin'}}
+      const config = {
+        roles,
+        all : false,
+        test : 'user'
+      }
 
-    expect(controllersPolicy(req, config)).to.be.true
+      expect(controllersPolicy(req, config)).to.be.true
+    })
   })
 })

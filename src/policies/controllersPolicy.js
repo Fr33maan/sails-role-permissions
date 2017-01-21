@@ -7,7 +7,7 @@ export default function (req, config) {
   const controller = req.options.controller
 
   const reqRole   = req.user ? (req.user.role || 'user') : 'guest'
-  const askedRole = config[controller]
+  const askedRole = config[controller] || config.all
 
   const errorMessages = messageUtil.generateControllerErrorMessages(controller, reqRole, askedRole)
 
@@ -41,6 +41,17 @@ export default function (req, config) {
   // ------------------
   // ----- STRING -----
   // ------------------
+
+  // Wildcard is a role
+  // Check if role exists and if controller has no policy we use wildcard
+  if(typeof config.all === 'string' && roleUtil.roleExists(config.all, config.roles) && !config[controller]){
+    if(roleUtil.isRoleAllowed(reqRole, config.all, config.roles)){
+      return true
+
+    }else{
+      throw new Error(errorMessages.roleIsTooLow)
+    }
+  }
 
   // If config.role is guest we only allow guest to access
   if(askedRole === 'guest'){

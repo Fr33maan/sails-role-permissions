@@ -162,7 +162,7 @@ describe('denyAll ::', function() {
     expect(s.sails.config.permissions['all']).to.equal(false)
   })
 
-  it('should have made the config route available', function(done){
+  it('should have made the config route available - deny nomodel', function(done){
     request(s.sails.hooks.http.app)
     .get('/nomodel')
     .expect(403)
