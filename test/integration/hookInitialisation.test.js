@@ -124,9 +124,10 @@ describe('allowAll (explicit / config.policies) ::', function() {
     })
   })
 
-  // ---------------------
-  // ---- FIND/CREATE ----
-  // ---------------------
+
+  // ---------------
+  // ---- OTHER ----
+  // ---------------
 
   describe('blueprints (no find/create) lifecycle', function(){
 
@@ -178,9 +179,11 @@ describe('allowAll (explicit / config.policies) ::', function() {
   })
 
 
-  // ---------------
-  // ---- OTHER ----
-  // ---------------
+
+
+  // ---------------------
+  // ---- FIND/CREATE ----
+  // ---------------------
 
   describe('create/find blueprint', function(){
     it('should have made the create blueprint route available', function(done){

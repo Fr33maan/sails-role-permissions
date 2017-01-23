@@ -10,8 +10,6 @@ export default function (req, config) {
 
   const reqRole   = req.user ? (req.user.role || 'user') : 'guest'
   const askedRole = config[controller][action] || config.all
-
-
   const actionConfig = config[controller][action]
 
   const errorMessages = messageUtil.generateActionErrorMessages(controller, action, reqRole, askedRole)

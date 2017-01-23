@@ -22,18 +22,7 @@ import messageUtil from '../../src/util/messageUtil'
 
 describe('actionsPolicy :: Deny', function(){
 
-  it("should deny access when '*' policy is set to false and no controller specific config was found", function(){
 
-    const req  = {options : {controller : 'test', action : 'find'}}
-    const config = {
-      all : false,
-      test : {}
-    }
-    const errorMessages = messageUtil.generateActionErrorMessages('test', 'find', 'guest')
-
-    expect(() => actionsPolicy(req, config)).to.throw(errorMessages.notFound)
-  })
-  
 })
 
 
@@ -44,18 +33,7 @@ describe('actionsPolicy :: Deny', function(){
 
 describe('actionsPolicy :: Pending', function(){
 
-  it("should skip to next policy (aka return false)", function(){
 
-    const req  = {options : {controller : 'test', action : 'find'}}
-    const config = {
-      all : false,
-      test : {
-        find : {}
-      }
-    }
-
-    expect(actionsPolicy(req, config)).to.be.false
-  })
 })
 
 
@@ -66,15 +44,5 @@ describe('actionsPolicy :: Pending', function(){
 
 describe('actionsPolicy :: Allow', function(){
 
-  it("should allow access when wildcard is set to true", function(){
-
-    const req  = {options : {controller : 'test', action : 'find'}}
-    const config = {
-      all : true,
-      test : {}
-    }
-
-    expect(actionsPolicy(req, config)).to.be.true
-  })
 
 })

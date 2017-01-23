@@ -36,6 +36,20 @@ export default {
       roleIsTooLow       : baseMsg + defaultMessages.roleIsTooLow + ` (reqRole = ${reqRole} && askedRole = ${askedRole})`
     }
 
+  },
+
+  generateAttributeErrorMessages: function(controller, action, attribute, reqRole, askedRole){
+
+    const baseMsg = `Attribute Error ${controller}::${action}::${attribute} (controller::action::attribute) : `
+
+    return {
+      notFound           : baseMsg + 'global permissions set to false and action has no permissions set',
+      setToFalse         : baseMsg + 'attribute ' + defaultMessages.setToFalse,
+      setToGuest         : baseMsg + 'attribute ' + defaultMessages.setToGuest + reqRole,
+      forbiddenForGuests : baseMsg + defaultMessages.forbiddenForGuests,
+      roleIsTooLow       : baseMsg + defaultMessages.roleIsTooLow + ` (reqRole = ${reqRole} && askedRole = ${askedRole})`
+    }
+
   }
 
 }

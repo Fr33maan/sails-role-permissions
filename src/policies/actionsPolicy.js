@@ -2,7 +2,32 @@
 
 import roleUtil from '../util/roleUtil'
 import messageUtil from '../util/messageUtil'
+import policyMethods from './policyMethods'
 
+
+export default class parametersPolicy extends policyMethods {
+
+  constructor(req, config){
+
+    super()
+
+    const controller = req.options.controller
+    const action = req.options.action
+
+
+    this.config    = config
+    this.reqRole   = req.user ? (req.user.role || 'user') : 'guest'
+    this.askedRole = config[controller][action] || config.all
+
+    this.container = config[controller]
+    this.policy = config[controller][action]
+    this.policyName = action
+
+    this.errorMessages = messageUtil.generateActionErrorMessages(controller, action, this.reqRole, this.askedRole)
+  }
+}
+
+/*
 export default function (req, config) {
 
   const controller = req.options.controller
@@ -10,9 +35,6 @@ export default function (req, config) {
 
   const reqRole   = req.user ? (req.user.role || 'user') : 'guest'
   const askedRole = config[controller][action] || config.all
-
-
-  const actionConfig = config[controller][action]
 
   const errorMessages = messageUtil.generateActionErrorMessages(controller, action, reqRole, askedRole)
 
@@ -88,3 +110,4 @@ export default function (req, config) {
 
   return false //Pending - call next policy
 }
+*/

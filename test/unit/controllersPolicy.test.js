@@ -33,7 +33,7 @@ describe('controllersPolicy :: Deny', function(){
       }
       const errorMessages = messageUtil.generateControllerErrorMessages('test', 'guest')
 
-      expect(() => controllersPolicy(req, config)).to.throw(errorMessages.notFound)
+      expect(() => new controllersPolicy(req, config).check()).to.throw(errorMessages.notFound)
     })
 
     it("should deny access when '*' policy is set to a too high role and no controller specific config was found", function(){
@@ -45,7 +45,7 @@ describe('controllersPolicy :: Deny', function(){
       }
       const errorMessages = messageUtil.generateControllerErrorMessages('test', 'user', 'admin')
 
-      expect(() => controllersPolicy(req, config)).to.throw(errorMessages.roleIsTooLow)
+      expect(() => new controllersPolicy(req, config).check()).to.throw(errorMessages.roleIsTooLow)
     })
 
     it("should deny access when '*' policy is set to a too high role and no controller specific config was found", function(){
@@ -57,7 +57,7 @@ describe('controllersPolicy :: Deny', function(){
       }
       const errorMessages = messageUtil.generateControllerErrorMessages('test', 'guest', 'user')
 
-      expect(() => controllersPolicy(req, config)).to.throw(errorMessages.roleIsTooLow)
+      expect(() =>new controllersPolicy(req, config).check()).to.throw(errorMessages.roleIsTooLow)
     })
   })
 
@@ -72,7 +72,7 @@ describe('controllersPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateControllerErrorMessages('test', 'guest')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.setToFalse)
+    expect(() => new controllersPolicy(req, config).check()).to.throw(errorMessages.setToFalse)
   })
 
 
@@ -85,7 +85,7 @@ describe('controllersPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateControllerErrorMessages('test', 'user')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.setToGuest)
+    expect(() => new controllersPolicy(req, config).check()).to.throw(errorMessages.setToGuest)
   })
 
   it("should deny when asking a guest controller and logged as a user (without role)", function(){
@@ -97,7 +97,7 @@ describe('controllersPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateControllerErrorMessages('test', 'user')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.setToGuest)
+    expect(() => new controllersPolicy(req, config).check()).to.throw(errorMessages.setToGuest)
   })
 
   it("should deny when asking a role above req.role", function(){
@@ -110,7 +110,7 @@ describe('controllersPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateControllerErrorMessages('test', 'user')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.notAllowed)
+    expect(() => new controllersPolicy(req, config).check()).to.throw(errorMessages.notAllowed)
   })
 
   it("should deny when asking without role", function(){
@@ -123,7 +123,7 @@ describe('controllersPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateControllerErrorMessages('test', 'guest')
 
-    expect(() => controllersPolicy(req, config)).to.throw(errorMessages.forbiddenForGuests)
+    expect(() => new controllersPolicy(req, config).check()).to.throw(errorMessages.forbiddenForGuests)
   })
 })
 
@@ -143,7 +143,7 @@ describe('controllersPolicy :: Pending', function(){
       test : {}
     }
 
-    expect(controllersPolicy(req, config)).to.be.false
+    expect(new controllersPolicy(req, config).check()).to.be.false
   })
 })
 
@@ -163,7 +163,7 @@ describe('controllersPolicy :: Allow', function(){
           all : true,
         }
 
-        expect(controllersPolicy(req, config)).to.be.true
+        expect(new controllersPolicy(req, config).check()).to.be.true
       })
 
       it("should allow access to req when wildcard is set to admin and controller does not exists", function(){
@@ -174,7 +174,7 @@ describe('controllersPolicy :: Allow', function(){
           all : 'admin'
         }
 
-        expect(controllersPolicy(req, config)).to.be.true
+        expect(new controllersPolicy(req, config).check()).to.be.true
       })
   })
 
@@ -187,7 +187,7 @@ describe('controllersPolicy :: Allow', function(){
         test : true
       }
 
-      expect(controllersPolicy(req, config)).to.be.true
+      expect(new controllersPolicy(req, config).check()).to.be.true
     })
 
     it("should allow access to guest when controller is set to guest", function(){
@@ -198,7 +198,7 @@ describe('controllersPolicy :: Allow', function(){
         test : 'guest'
       }
 
-      expect(controllersPolicy(req, config)).to.be.true
+      expect(new controllersPolicy(req, config).check()).to.be.true
     })
 
     it("should allow access to req when controller is set to lower role", function(){
@@ -210,7 +210,7 @@ describe('controllersPolicy :: Allow', function(){
         test : 'user'
       }
 
-      expect(controllersPolicy(req, config)).to.be.true
+      expect(new controllersPolicy(req, config).check()).to.be.true
     })
   })
 })

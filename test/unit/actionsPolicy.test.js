@@ -31,7 +31,7 @@ describe('actionsPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateActionErrorMessages('test', 'find', 'guest')
 
-    expect(() => actionsPolicy(req, config)).to.throw(errorMessages.notFound)
+    expect(() => new actionsPolicy(req, config).check()).to.throw(errorMessages.notFound)
   })
 
   it("should deny access when '*' policy is set to a role and no controller specific config was found", function(){
@@ -44,7 +44,7 @@ describe('actionsPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateActionErrorMessages('test', 'find', 'user', 'admin')
 
-    expect(() => actionsPolicy(req, config)).to.throw(errorMessages.roleIsTooLow)
+    expect(() => new actionsPolicy(req, config).check()).to.throw(errorMessages.roleIsTooLow)
   })
 
   it("should deny access when '*' policy is set to a role and no controller specific config was found", function(){
@@ -57,7 +57,7 @@ describe('actionsPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateActionErrorMessages('test', 'find', 'guest', 'admin')
 
-    expect(() => actionsPolicy(req, config)).to.throw(errorMessages.roleIsTooLow)
+    expect(() => new actionsPolicy(req, config).check()).to.throw(errorMessages.roleIsTooLow)
   })
 
   it("should deny access when '*' policy is set to false and no controller specific config was found", function(){
@@ -71,7 +71,7 @@ describe('actionsPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateActionErrorMessages('test', 'find', 'guest')
 
-    expect(() => actionsPolicy(req, config)).to.throw(errorMessages.setToFalse)
+    expect(() => new actionsPolicy(req, config).check()).to.throw(errorMessages.setToFalse)
   })
 
   it("should deny access when '*' policy is set to false and no controller specific config was found", function(){
@@ -85,7 +85,7 @@ describe('actionsPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateActionErrorMessages('test', 'find', 'guest')
 
-    expect(() => actionsPolicy(req, config)).to.throw(errorMessages.setToFalse)
+    expect(() => new actionsPolicy(req, config).check()).to.throw(errorMessages.setToFalse)
   })
 
 
@@ -100,7 +100,7 @@ describe('actionsPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateActionErrorMessages('test', 'create', 'user')
 
-    expect(() => actionsPolicy(req, config)).to.throw(errorMessages.setToGuest)
+    expect(() => new actionsPolicy(req, config).check()).to.throw(errorMessages.setToGuest)
   })
 
   it("should deny access when action policy is set to a too high role (as guest)", function(){
@@ -113,7 +113,7 @@ describe('actionsPolicy :: Deny', function(){
       }
     }
     const errorMessages = messageUtil.generateActionErrorMessages('test', 'find', 'guest', 'admin')
-    expect(() => actionsPolicy(req, config)).to.throw(errorMessages.forbiddenForGuests)
+    expect(() => new actionsPolicy(req, config).check()).to.throw(errorMessages.forbiddenForGuests)
   })
 
   it("should deny access when action policy is set to a too high role (as user)", function(){
@@ -128,7 +128,7 @@ describe('actionsPolicy :: Deny', function(){
     }
     const errorMessages = messageUtil.generateActionErrorMessages('test', 'find', 'user', 'admin')
 
-    expect(() => actionsPolicy(req, config)).to.throw(errorMessages.roleIsTooLow)
+    expect(() => new actionsPolicy(req, config).check()).to.throw(errorMessages.roleIsTooLow)
   })
 })
 
@@ -150,7 +150,7 @@ describe('actionsPolicy :: Pending', function(){
       }
     }
 
-    expect(actionsPolicy(req, config)).to.be.false
+    expect(new actionsPolicy(req, config).check()).to.be.false
   })
 })
 
@@ -170,7 +170,7 @@ describe('actionsPolicy :: Allow', function(){
       test : {}
     }
 
-    expect(actionsPolicy(req, config)).to.be.true
+    expect(new actionsPolicy(req, config).check()).to.be.true
   })
 
   it("should allow access when wildcard is set to false but action is set to true", function(){
@@ -183,7 +183,7 @@ describe('actionsPolicy :: Allow', function(){
       }
     }
 
-    expect(actionsPolicy(req, config)).to.be.true
+    expect(new actionsPolicy(req, config).check()).to.be.true
   })
 
   it("should allow access when action policy is set to guest and req is guest", function(){
@@ -196,7 +196,7 @@ describe('actionsPolicy :: Allow', function(){
       }
     }
 
-    expect(actionsPolicy(req, config)).to.be.true
+    expect(new actionsPolicy(req, config).check()).to.be.true
   })
 
   it("should allow access when action policy is set to user and req is user", function(){
@@ -210,7 +210,7 @@ describe('actionsPolicy :: Allow', function(){
       }
     }
 
-    expect(actionsPolicy(req, config)).to.be.true
+    expect(new actionsPolicy(req, config).check()).to.be.true
   })
 
   it("should allow access when action policy is set to user and req is user", function(){
@@ -224,7 +224,7 @@ describe('actionsPolicy :: Allow', function(){
       }
     }
 
-    expect(actionsPolicy(req, config)).to.be.true
+    expect(new actionsPolicy(req, config).check()).to.be.true
   })
 
   it("should allow access when action policy is set to admin and req is admin", function(){
@@ -236,6 +236,6 @@ describe('actionsPolicy :: Allow', function(){
       test : {}
     }
 
-    expect(actionsPolicy(req, config)).to.be.true
+    expect(new actionsPolicy(req, config).check()).to.be.true
   })
 })
