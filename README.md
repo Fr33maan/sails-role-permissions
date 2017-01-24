@@ -25,11 +25,13 @@ When `sails-hook-role-permissions` reject a request it does it with res.forbidde
 The hook try to throw explicit error message so you can quickly understand what is happening with it.  
 
 
+
 ```javascript
 
 module.exports.permissions = {
 
   '*' : false,
+  removeAutoAttributes : true, // Default to true, will remove id, createdAt and updatedAt from create and update blueprints req.body
 
   channel : true, // model level policy - everybody can access all actions and all attributes (expect creating autoset attributes)
 
@@ -95,9 +97,13 @@ Finally it will filter request and/or results depending on action (filter req fo
 ####0.1.0
 - global level permission
 - controller level permission
+- action level permission
+- parameter level permission for add/remove/populate blueprints
+- attribute level permission for find/findOne/create/update blueprints
 
 
 ## Todo
 - add cache for requests
 - attribute level permissions
 - make role field custumizable
+- use .omit and .select waterline queries to gain performance over filtering after request

@@ -8,6 +8,7 @@ module.exports = function (sails) {
     configure: function(){
       if(!sails.config.permissions) sails.config.permissions = {}
       if(!sails.config.permissions.roles) sails.config.permissions.roles = defaultRoles
+      if(!sails.config.permissions.removeAutoAttributes) sails.config.permissions.removeAutoAttributes = true
 
       // Remove "guest" role from roles if it has been added by user
       sails.config.permissions.roles = sails.config.permissions.roles.filter(role => role !== 'guest')

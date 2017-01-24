@@ -50,6 +50,13 @@ export default {
       roleIsTooLow       : baseMsg + defaultMessages.roleIsTooLow + ` (reqRole = ${reqRole} && askedRole = ${askedRole})`
     }
 
+  },
+
+  criteriaErrorMessages : function(attribute){
+    return {
+      where : `${attribute} is forbidden in 'where' request clause`,
+      sort  : `${attribute} is forbidden in 'sort' request clause`
+    }
   }
 
 }

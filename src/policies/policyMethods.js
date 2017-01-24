@@ -5,9 +5,7 @@ import roleUtil from '../util/roleUtil'
 export default class {
 
   check(){
-
     if(this.customPreCheck && this.customPreCheck()) return false // Pending
-
     if(this.policyIsObject()) return false // Pending
     if(this.wildcardIsTrue()) return true  // Allow
 

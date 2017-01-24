@@ -5,9 +5,13 @@ module.exports = {
 
   roles,
   routes : {
-    'GET /test/testAction'        : 'TestController.testAction',
-    'GET /nomodel'                : 'NoModelController.testAction',
+    'GET /test/testAction'             : 'TestController.testAction',
+    'GET /nomodel_test'                : 'NoModelController.testAction',
     'GET /paramRoute/:routeParameter'  : 'TestController.testActionWithParam'
   },
-  models : {migrate: 'drop'},
+  connections : {mongo : {
+    adapter: 'sails-mongo',
+    database: 'sails-hook-role-permissions'
+  }},
+  models : {migrate: 'drop', connection : 'mongo'},
 }

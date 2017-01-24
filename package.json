@@ -34,7 +34,11 @@
     "chai": "^3.5.0",
     "mocha": "^3.2.0",
     "sails": "^0.12.11",
+    "sails-mongo": "^0.12.2",
     "sinon": "^1.17.7",
     "supertest": "^2.0.1"
+  },
+  "dependencies": {
+    "ramda": "^0.23.0"
   }
 }

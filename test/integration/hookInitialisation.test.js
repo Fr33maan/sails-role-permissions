@@ -97,7 +97,7 @@ describe('allowAll (explicit / config.policies) ::', function() {
 
     it('should have made the config route available', function(done){
       request(s.sails.hooks.http.app)
-      .get('/nomodel')
+      .get('/nomodel_test')
       .expect(200)
       .end((err, res) => {
         done(err)
@@ -250,7 +250,7 @@ describe('denyAll ::', function() {
 
   it('should have made the config route available - deny nomodel', function(done){
     request(s.sails.hooks.http.app)
-    .get('/nomodel')
+    .get('/nomodel_test')
     .expect(403)
     .end((err, res) => {
       done(err)

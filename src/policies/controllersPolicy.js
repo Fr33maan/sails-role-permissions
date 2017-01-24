@@ -4,7 +4,7 @@ import messageUtil from '../util/messageUtil'
 import policyMethods from './policyMethods'
 
 
-export default class parametersPolicy extends policyMethods {
+export default class controllersPolicy extends policyMethods {
 
   constructor(req, config){
 
