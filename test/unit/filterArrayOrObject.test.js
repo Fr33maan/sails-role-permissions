@@ -6,7 +6,9 @@ import { assert, expect, should }   from 'chai'
 import {filterArrayOrObject} from '../../src/util/attributeUtil'
 
 
-describe('filterArrayOrObject', function(){
+describe('filterArrayOrObject - non owner', function(){
+
+  const isOwner = false
 
   it('should only keep allowed attributes in req.body if it is a single object', function(){
 
@@ -21,7 +23,7 @@ describe('filterArrayOrObject', function(){
       adminAttribute : 123
     }
 
-    expect(filterArrayOrObject(body, filters)).to.eql({
+    expect(filterArrayOrObject(body, filters, isOwner)).to.eql({
       name           : 'test',
       email          : 'email'
     })
@@ -33,7 +35,44 @@ describe('filterArrayOrObject', function(){
 
     const filters = {
       allowed : ['name', 'email', 'password'],
-      private : []
+      private : ['shouldNotAppear']
+    }
+
+    const body = [{
+      name           : 'test',
+      email          : 'email',
+      adminAttribute : 123,
+      shouldNotAppear: 123
+    },{
+      name           : 'test',
+      email          : 'email',
+      adminAttribute : 123,
+      shouldNotAppear: 123
+    }]
+
+    expect(filterArrayOrObject(body, filters, isOwner)).to.eql([
+      {
+        name  : 'test',
+        email : 'email'
+      },{
+        name  : 'test',
+        email : 'email'
+      }
+    ])
+
+  })
+})
+
+
+describe('filterArrayOrObject - owner', function(){
+
+  const isOwner = true
+
+  it('should keep allowed and private attributes in req.body if it is an array', function(){
+
+    const filters = {
+      allowed : ['name'],
+      private : ['email']
     }
 
     const body = [{
@@ -46,15 +85,33 @@ describe('filterArrayOrObject', function(){
       adminAttribute : 123
     }]
 
-    expect(filterArrayOrObject(body, filters)).to.eql([
-      {
-        name  : 'test',
-        email : 'email'
-      },{
-        name  : 'test',
-        email : 'email'
-      }
-    ])
+    expect(filterArrayOrObject(body, filters, isOwner)).to.eql([{
+      name           : 'test',
+      email          : 'email',
+    },{
+      name           : 'test',
+      email          : 'email',
+    }])
+
+  })
+
+  it('should keep allowed and private attributes in req.body if it is a single object', function(){
+
+    const filters = {
+      allowed : ['name'],
+      private : ['email']
+    }
+
+    const body = {
+      name           : 'test',
+      email          : 'email',
+      adminAttribute : 123
+    }
+
+    expect(filterArrayOrObject(body, filters, isOwner)).to.eql({
+      name           : 'test',
+      email          : 'email',
+    })
 
   })
 })

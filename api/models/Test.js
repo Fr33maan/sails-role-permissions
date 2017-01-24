@@ -5,8 +5,16 @@ module.exports = {
     name : 'string',
     email : 'string',
     password: 'string',
-    Nocontroller : {
+    nocontroller : {
       collection : 'nocontroller',
+    },
+
+    owner : {
+      collection : 'user'
+    },
+
+    owners : {
+      collection : 'user'
     }
   }
 

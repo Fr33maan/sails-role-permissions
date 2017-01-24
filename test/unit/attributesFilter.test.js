@@ -135,6 +135,7 @@ describe('attributesFilter', function(){
         private : []
       })
     })
+
   })
 
 

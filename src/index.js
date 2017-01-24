@@ -22,6 +22,23 @@ module.exports = function (sails) {
       // Flavour sails policies with additional permissionsPolicies
       sails.config.policies = _.each(policies, this.addHookPolicies)
 
+      // If no wildcard is set in config.permissions
+      const wildcard = sails.config.permissions['*']
+      const wildcardAlias = sails.config.permissions.all
+
+      // Used in case of policy wildcard is a function instead of a boolean
+      // Default is false
+      if(wildcard === undefined && wildcardAlias === undefined){
+        sails.config.permissions['*'] = false
+        sails.config.permissions.all  = false
+
+      }else if(wildcard === undefined && wildcardAlias !== undefined){
+        sails.config.permissions['*'] = sails.config.permissions.all
+
+      }else if(wildcard !== undefined && wildcardAlias === undefined){
+        sails.config.permissions.all = sails.config.permissions['*']
+      }
+
       next()
     },
 
@@ -30,7 +47,7 @@ module.exports = function (sails) {
     addHookPolicies: function(value, key, collection){
 
       // Store at permissions config level the value of default policy if value is true or false
-      if(key === '*' && typeof value === 'boolean'){
+      if(key === '*' && (typeof value === 'boolean')){
         sails.config.permissions['*'] = value
         sails.config.permissions.all = value // Alias
       }

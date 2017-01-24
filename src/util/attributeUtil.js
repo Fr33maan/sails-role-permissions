@@ -14,6 +14,11 @@ export function attributesFilter(req, config, modelDefinition) {
     if(!(modelName in sails.models)) throw new Error(`Model (${modelName}) not found in sails`)
 
     modelDefinition = sails.models[modelName].definition
+
+    for(let association of sails.models[modelName].associations){
+      modelDefinition[association.alias] = 'association'
+    }
+
   }
 
   const controller  = req.options.controller
@@ -72,12 +77,13 @@ export function removeAutoAttributes(arrayOrObject){
   }
 }
 
-export function filterArrayOrObject(arrayOrObject, filters){
+export function filterArrayOrObject(arrayOrObject, filters, isOwner){
 
   function buildNewBody (body){
     const newBody = {}
     for(let key in body){
       if(filters.allowed.indexOf(key) > -1) newBody[key] = body[key]
+      if(isOwner && filters.private.indexOf(key) > -1) newBody[key] = body[key]
     }
     return newBody
   }

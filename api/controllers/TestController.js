@@ -12,9 +12,4 @@ module.exports = {
     res.ok({...req.params})
   },
 
-  find : function(req, res){
-    res.ok([{name : 'testName'}])
-  }
-
-
 }
