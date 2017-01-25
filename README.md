@@ -17,25 +17,25 @@ You must set up an authentification layer. SRP policies will try to find a `role
 
 ## FAQ
 
-- **Why this module ?**
+- **Why this module ?**  
 *Blueprints are something wonderful but they are too permissive for a production app, you have to write many `config/policies.js`. The problem is you cannot easily set attribute-level (aka row-level) permissioning in a easy way with policies. SRP does this job for you.*
 
 - **Does my existing policies will work with this hook ?**  
 *We do not change your existing policies and they will be executed **before** `sails-role-permissions`. If you don't want to use `role-permissions` for a specific action, just configure the action to `true`*
 
-- **Can I use native blueprints with SRP ?**
+- **Can I use native blueprints with SRP ?**  
 *Yes, SRP has been made to work with blueprint and avoid writing custom action for duplicating blueprints which needs row-level security.*
 
-- **Can i use srp for all my custom actions ?**
+- **Can i use srp for all my custom actions ?**  
 *Yes, SRP works with different level (controller/action/attribute) and you can use 2 first level for your custom actions. Because SRP does not know what your action does, you cannot configure attribute level permission for custom actions.*
 
-- **Does overridden blueprints works with SRP ?**
+- **Does overridden blueprints works with SRP ?**  
 *Yes, SRP act as a classic policy for most blueprints except find/findOne. For those actions, SRP will directly call them and filter the result instead of passing request to the action by calling next(). In all cases, SRP works with classic blueprints, native and/or overriden.*
 
-- **Does SRP manage authentication for me ?**
+- **Does SRP manage authentication for me ?**  
 *No, SRP does only take care of permissioning for you and let you free to choose how your app should authenticate their users. This make it works with any app*
 
-- **How does SRP reject request ?**
+- **How does SRP reject request ?**  
 *SRP call res.forbidden(Error). SRP tries to reject consitent error message which clearly indicate what is happening.*
 
 
@@ -98,7 +98,7 @@ module.exports.permissions = {
 ---
 
 ## Changelog  
-##### 0.1.0
+#### 0.1.0
 - global level permission
 - controller level permission
 - action level permission
