@@ -80,6 +80,30 @@ describe('attributesFilter', function(){
       })
     })
 
+    it('should build filter for findOne action and take find config', function(){
+
+      const req  = {options : {controller : 'test', action : 'findOne'}, user : {role : 'admin'}, params : []}
+      const config = {
+        roles,
+        all : false,
+        test : {
+          find : {
+            password : false,
+            email : 'private',
+            updatedAt : 'private'
+          }
+        }
+      }
+
+      const filters = attributesFilter(req, config, mainModelDefinition)
+
+      filters.should.eql({
+        allowed : ['name', 'email', 'id', 'createdAt', 'updatedAt'],
+        private : [],
+      })
+    })
+
+
     it('should build filter for user (with ranked attributes)', function(){
 
       const req  = {options : {controller : 'test', action : 'find'}, params : [], user : {role : 'user'}}

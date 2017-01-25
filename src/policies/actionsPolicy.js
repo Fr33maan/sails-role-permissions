@@ -12,8 +12,10 @@ export default class actionsPolicy extends policyMethods {
     super()
 
     const controller = req.options.controller
-    const action = req.options.action
+    let action       = req.options.action
 
+    // Take find config if no findOne config is provided
+    if(action === 'findOne' && !config[controller].findOne && config[controller].find) action = 'find'
 
     this.config    = config
     this.reqRole   = req.user ? (req.user.role || 'user') : 'guest'

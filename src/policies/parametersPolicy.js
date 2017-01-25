@@ -15,9 +15,13 @@
 
      super()
 
-     const action = req.options.action
-     this.action = action
      const controller = req.options.controller
+     let action       = req.options.action
+
+     // Take find config if no findOne config is provided
+     if(action === 'findOne' && !config[controller].findOne && config[controller].find) action = 'find'
+
+     this.action = action
      const attribute = req.options.alias
 
      this.config    = config

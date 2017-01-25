@@ -87,6 +87,7 @@ export default async function(req, res, next, injectedConfig){
 
   }catch(e){
     console.log(e.message)
+    // console.log(e.stack)
     res.forbidden(e)
   }
 }

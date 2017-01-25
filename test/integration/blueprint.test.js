@@ -114,7 +114,7 @@ describe('Blueprint Integration ::', function(){
       })
     })
 
-    it('test find with request 123', function(done){
+    it('test find with request', function(done){
 
       request(s.sails.hooks.http.app)
       // .get(`/test`)
@@ -257,7 +257,7 @@ describe('Blueprint Integration ::', function(){
       }
 
       request(s.sails.hooks.http.app)
-      .put(`/test/123123123`)
+      .put(`/test/inexistantId`)
       .send(newModel)
       .expect(403)
       .end((err, res) => {

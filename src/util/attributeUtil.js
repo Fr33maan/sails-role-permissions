@@ -18,12 +18,14 @@ export function attributesFilter(req, config, modelDefinition) {
     for(let association of sails.models[modelName].associations){
       modelDefinition[association.alias] = 'association'
     }
-
   }
 
   const controller  = req.options.controller
   const action      = req.options.action
-  const container   = config[controller][action]
+  let container     = config[controller][action]
+
+  // Take find config if findOne config does not exists
+  if(action === 'findOne' && !container) container = config[controller].find
 
   const reqRole = req.user ? (req.user.role || 'user') : 'guest'
 
