@@ -10,6 +10,7 @@ export default class SailsServer {
     // Add additionalConfig to default config
     const config = {
       ...additionalConfig,
+      permissionsTest : true,
       hooks: {
         "sails-hook-role-permissions": require('../../src/index.js'),
         "grunt": false

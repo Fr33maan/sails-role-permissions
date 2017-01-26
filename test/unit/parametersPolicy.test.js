@@ -93,6 +93,7 @@ describe('parametersPolicy ::: Deny', function(){
       },
     }
     const config = {
+      roles,
       all : true,
       test : {
         populate : {

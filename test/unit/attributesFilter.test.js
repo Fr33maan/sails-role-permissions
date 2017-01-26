@@ -160,6 +160,32 @@ describe('attributesFilter', function(){
       })
     })
 
+
+    it('should build filter for guest (with forbidden attributes)', function(){
+
+      const req  = {options : {controller : 'test', action : 'create'}, params : []}
+      const modelDefinition = {
+        ...mainModelDefinition,
+        gender : {type : 'string'}
+      }
+      const config = {
+        roles,
+        all : false,
+        test : {
+          create : {
+            '*' : 'guest',
+            updatedAt : false
+          }
+        }
+      }
+
+      const filters = attributesFilter(req, config, modelDefinition)
+
+      filters.should.eql({
+        allowed : ['name', 'email', 'password', 'id', 'createdAt', 'gender'],
+        private : []
+      })
+    })
   })
 
 

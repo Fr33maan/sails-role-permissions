@@ -29,6 +29,7 @@ describe('controllersPolicy :: Deny', function(){
 
       const req  = {options : {controller : 'test'}}
       const config = {
+        roles,
         all : false
       }
       const errorMessages = messageUtil.generateControllerErrorMessages('test', 'guest')
@@ -67,6 +68,7 @@ describe('controllersPolicy :: Deny', function(){
 
     const req  = {options : {controller : 'test'}}
     const config = {
+      roles,
       all : true,
       test : false
     }
@@ -80,6 +82,7 @@ describe('controllersPolicy :: Deny', function(){
 
     const req  = {options : {controller : 'test'}, user : {role : 'user'}}
     const config = {
+      roles,
       all : true,
       test : 'guest'
     }
@@ -92,6 +95,7 @@ describe('controllersPolicy :: Deny', function(){
 
     const req  = {options : {controller : 'test'}, user : {name : 'libre'}}
     const config = {
+      roles,
       all : true,
       test : 'guest'
     }

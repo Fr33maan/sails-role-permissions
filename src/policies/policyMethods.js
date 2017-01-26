@@ -1,11 +1,12 @@
 
-import roleUtil from '../util/roleUtil'
+import RoleUtil from '../util/RoleUtil'
 
 
 export default class {
 
   check(){
     if(this.customPreCheck && this.customPreCheck()) return false // Pending
+    this.configRoleUtil()
     if(this.policyIsObject()) return false // Pending
     if(this.wildcardIsTrue()) return true  // Allow
 
@@ -21,13 +22,30 @@ export default class {
     return false // Policy not covered - Pending
   }
 
+  configRoleUtil(){
+
+    this.RoleUtil = new RoleUtil(this.reqRole, this.config)
+
+  }
+
 
   // ------------------
   // ----- OBJECT -----
   // ------------------
   policyIsObject(){
     // config[controller][action] is an object (means that we must use lower level policy)
-    return typeof this.policy === 'object' //Pending
+    if(typeof this.policy === 'object'){
+
+      // If there is a wildcard in the policy, we use it instead of set status to Pending
+      if('*' in this.policy && typeof this.policy['*'] === 'string'){
+        this.policy    = this.policy['*']
+        this.askedRole = this.policy
+        return false
+      }
+
+      // Set to pending
+      return true
+    }
   }
 
 
@@ -62,8 +80,8 @@ export default class {
   wildcardAsRole(){
     // Wildcard is a role
     // Check if role exists and if no policy we use wildcard
-    if(typeof this.config.all === 'string' && roleUtil.roleExists(this.config.all, this.config.roles) && !this.policy){
-      if(roleUtil.isRoleAllowed(this.reqRole, this.config.all, this.config.roles)){
+    if(typeof this.config.all === 'string' && this.RoleUtil.roleExists(this.config.all) && !this.policy){
+      if(this.RoleUtil.isRoleAllowed(this.config.all)){
         return true
 
       }else{
@@ -76,7 +94,7 @@ export default class {
   policyIsGuest(){
     // If config.role is guest we only allow guest to access
     if(this.askedRole === 'guest'){
-      if(this.reqRole === 'guest'){
+      if(this.reqRole === 'guest' || this.reqRole === this.RoleUtil.getHighestRole()){
         return true //Allow
 
       }else{
@@ -94,7 +112,7 @@ export default class {
 
   policyIsRole(){
     // user has not role sufficient to access ressource
-    if(roleUtil.isRoleAllowed(this.reqRole, this.askedRole, this.config.roles)){
+    if(this.RoleUtil.isRoleAllowed(this.askedRole)){
       return true
 
     }else{

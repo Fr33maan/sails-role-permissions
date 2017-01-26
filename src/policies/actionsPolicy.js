@@ -1,6 +1,5 @@
 
 
-import roleUtil from '../util/roleUtil'
 import messageUtil from '../util/messageUtil'
 import policyMethods from './policyMethods'
 

@@ -1,6 +1,6 @@
 
 
-import roleUtil from '../util/roleUtil'
+import RoleUtil from '../util/RoleUtil'
 import messageUtil from '../util/messageUtil'
 import R from 'ramda'
 
@@ -53,11 +53,14 @@ export function attributesFilter(req, config, modelDefinition) {
         }
 
       }else if(typeof policy === 'string'){
+
+        const RoleUtilInstance = new RoleUtil(reqRole, config)
+
         // Check that role exists
-        if(!roleUtil.roleExists(policy, config.roles)) throw new Error(`role ${policy} does not exists`)
+        if(!RoleUtilInstance.roleExists(policy)) throw new Error(`role ${policy} does not exists`)
 
         // If reqRole is allowed, set attribute as allowed
-        if(roleUtil.isRoleAllowed(reqRole, policy, config.roles)) filters.allowed.push(attribute)
+        if(RoleUtilInstance.isRoleAllowed(policy)) filters.allowed.push(attribute)
       }
 
     }else{

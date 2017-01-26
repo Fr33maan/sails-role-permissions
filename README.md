@@ -11,7 +11,8 @@ SRP allows you to set controller/action/attribute permissions level with very mi
 ---
 
 ## Usage
-You must set up an authentification layer. SRP policies will try to find a `role` attribute in `req.user`. If none is found but if `req.user` exists, it will act that req has role `user`.  
+- You must set up an authentification layer. SRP policies will try to find a `role` attribute in `req.user`. If none is found but if `req.user` exists, it will act that req has role `user`.  
+- For ownership, your model must have an `owner` attribute which can be a `String` (id) or an `Array` (of ids / objects with id parameter).  
 
 ---
 
@@ -76,7 +77,7 @@ You don't need to provide both find and findOne config, if findOne config is not
 ```javascript
 module.exports.permissions = {
 
-  '*' : false, // Wildcard
+  '*' : false, // Global wildcard
 
   channel : true, // controller level policy - everybody can access all actions and all attributes (except creating autoAttributes)
 
@@ -88,7 +89,7 @@ module.exports.permissions = {
     },
 
     create : {
-        '*' : 'guest', // Only guest can create a user
+        '*' : 'guest', // Action level policy (Action wildcard)
         computedAttribute : false // this attribute is protected
     }
   }

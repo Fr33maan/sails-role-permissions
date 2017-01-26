@@ -123,7 +123,6 @@ describe('Blueprint Integration ::', function(){
       .end((err, res) => {
         const model = res.body[0]
         model.should.have.ownProperty('owner')
-        model.should.have.ownProperty('owners')
         model.should.have.ownProperty('name')
         model.should.have.ownProperty('createdAt')
         model.should.have.ownProperty('id')

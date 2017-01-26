@@ -93,6 +93,7 @@ describe('actionsPolicy :: Deny', function(){
 
     const req  = {options : {controller : 'test', action : 'create'}, user : {role : 'user'}}
     const config = {
+      roles,
       all : true,
       test : {
         create : 'guest'
@@ -107,6 +108,7 @@ describe('actionsPolicy :: Deny', function(){
 
     const req  = {options : {controller : 'test', action : 'find'}}
     const config = {
+      roles,
       all : true,
       test : {
         find : 'admin'
@@ -129,6 +131,22 @@ describe('actionsPolicy :: Deny', function(){
     const errorMessages = messageUtil.generateActionErrorMessages('test', 'find', 'user', 'admin')
 
     expect(() => new actionsPolicy(req, config).check()).to.throw(errorMessages.roleIsTooLow)
+  })
+
+  it("should deny access when action wildcard is set to a to guest (as user)", function(){
+
+    const req  = {options : {controller : 'test', action : 'find'}, user : {role : 'user'}}
+    const config = {
+      roles,
+      all : true,
+      test : {
+        find : {
+          '*' : 'guest'
+        }
+      }
+    }
+    const errorMessages = messageUtil.generateActionErrorMessages('test', 'find', 'user', 'guest')
+    expect(() => new actionsPolicy(req, config).check()).to.throw(errorMessages.setToGuest)
   })
 })
 
@@ -227,13 +245,45 @@ describe('actionsPolicy :: Allow', function(){
     expect(new actionsPolicy(req, config).check()).to.be.true
   })
 
-  it("should allow access when action policy is set to admin and req is admin", function(){
+  it("should allow access when global wildcard is set to admin and req is admin", function(){
 
     const req  = {options : {controller : 'test', action : 'testFind'}, user : {role : 'admin'}}
     const config = {
       roles,
       all : 'admin',
       test : {}
+    }
+
+    expect(new actionsPolicy(req, config).check()).to.be.true
+  })
+
+  it("should allow access when action wildcard is set to admin and req is admin", function(){
+
+    const req  = {options : {controller : 'test', action : 'find'}, user : {role : 'admin'}}
+    const config = {
+      roles,
+      all : false,
+      test : {
+        find : {
+          '*' : 'admin'
+        }
+      }
+    }
+
+    expect(new actionsPolicy(req, config).check()).to.be.true
+  })
+
+  it("should allow access when action wildcard is set to guest and req is admin", function(){
+
+    const req  = {options : {controller : 'test', action : 'find'}, user : {role : 'admin'}}
+    const config = {
+      roles,
+      all : false,
+      test : {
+        find : {
+          '*' : 'guest'
+        }
+      }
     }
 
     expect(new actionsPolicy(req, config).check()).to.be.true
