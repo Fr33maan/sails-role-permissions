@@ -52,38 +52,24 @@ describe('Ownership Integration ::', function(){
     }
 
     before(function (done) {
-      s.lift(config)
-      .then(() => s.sails.models.nocontroller.create({name : 'nocontroller'}).then(model => {nocontrollerModelInDb = model}))
-      .then(() => s.sails.models.user.create({name : 'l1br3'}).then(model => {userInDb = model}))
-      .then(() => s.sails.models.test.create(testModel).then(model => {
-        testModelInDb = model
 
-        return new Promise((resolve, reject) => {
-          model.owner.add(userInDb)
-          model.save(err => {
-            if(err) reject(err)
-            resolve(err)
-          })
-        })
-        .then(() => new Promise((resolve, reject) => {
-            model.owners.add(userInDb)
-            model.save(err => {
-              if(err) reject(err)
-              resolve(err)
-            })
-          })
-        )
-        .then(() => {
-          return new Promise((resolve, reject) => {
-            model.nocontroller.add(nocontrollerModelInDb)
-            model.save(err => {
-              if(err) reject(err)
-              resolve(err)
-            })
-          })
-        })
+      async function lift(){
+        try{
+          await s.lift(config)
+          nocontrollerModelInDb = await s.sails.models.nocontroller.create({name : 'nocontroller'})
+          userInDb              = await s.sails.models.user.create({name         : 'l1br3'})
+          testModelInDb         = await s.sails.models.test.create(testModel)
+          testModelInDb.owner.add(userInDb)
+          testModelInDb.nocontroller.add(nocontrollerModelInDb)
+          testModelInDb.owners.add(userInDb)
+          await save(testModelInDb)
 
-      }))
+        }catch(e){
+          return e
+        }
+      }
+
+      lift()
       .then(done)
       .catch(done)
     })
