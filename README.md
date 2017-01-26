@@ -90,7 +90,7 @@ module.exports.permissions = {
 
     create : {
         '*' : 'guest', // Action level policy (Action wildcard)
-        computedAttribute : false // this attribute is protected
+        computedAttribute : false // this attribute is protected and no one even admin can create it with blueprints
     }
   }
 }
