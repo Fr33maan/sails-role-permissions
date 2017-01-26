@@ -111,3 +111,4 @@ module.exports.permissions = {
 - add cache for requests
 - use .omit and .select waterline queries to gain performance over filtering after request once 1.x has been released
 - refactor tests with await/async instead of promises
+- remove Ramda dependency and use only lodash so module won't have more dependencies than sails

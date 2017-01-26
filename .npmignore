@@ -1,0 +1,9 @@
+.git
+.tmp
+api
+coverage
+node_modules
+src
+test
+.babelrc
+.gitignore
