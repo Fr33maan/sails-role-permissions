@@ -12,7 +12,7 @@ export default class SailsServer {
       ...additionalConfig,
       permissionsTest : true,
       hooks: {
-        "sails-hook-role-permissions": require('../../src/index.js'),
+        "sails-role-permissions": require('../../src/index.js'),
         "grunt": false
       },
       log: {level: "error"},
