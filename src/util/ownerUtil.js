@@ -1,4 +1,4 @@
-
+require('babel-polyfill')
 
 
 export default async function(req, rolesConfig){

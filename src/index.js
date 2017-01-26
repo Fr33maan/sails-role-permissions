@@ -2,6 +2,7 @@
 import permissionPolicies from './policies'
 import defaultRoles       from './config/defaultRoles'
 
+
 module.exports = function (sails) {
   return {
 
@@ -39,7 +40,7 @@ module.exports = function (sails) {
         sails.config.permissions.all = sails.config.permissions['*']
       }
 
-      console.log('role-permissions hook initialized')
+      sails.log.verbose('role-permissions hook initialized')
       next()
     },
 
