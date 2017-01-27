@@ -122,7 +122,7 @@ describe('Ownership Integration ::', function(){
       })
     })
 
-    it('should be able to update NON owned model when admin 123', function(done){
+    it('should be able to update NON owned model when admin', function(done){
 
       request(s.sails.hooks.http.app)
       .put(`/test/${testModelInDb.id}`)

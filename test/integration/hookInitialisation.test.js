@@ -26,13 +26,16 @@ let nocontrollerModelInDb, testModelInDb
 
 
 
-describe('allowAll (explicit / config.policies) ::', function() {
+describe('hook initialization allowAll (explicit / config.policies) :: ', function() {
 
   const config = {
     ...mainConfig,
     policies : {
       '*' : true,
-      testController : [testControllerPolicy]
+      testController : [testControllerPolicy],
+      anotherController : {
+        action : [testControllerPolicy]
+      }
     },
     permissions : {
       roles : [
@@ -71,7 +74,7 @@ describe('allowAll (explicit / config.policies) ::', function() {
   })
 
 
-  it('should add role-permission policy to all controllers set in sails.config.policies', function(){
+  it('should add role-permission policy to all controllers set in sails.config.policies 123', function(){
 
     // Check that policies have been changed
     const policies = s.sails.config.policies
@@ -87,6 +90,12 @@ describe('allowAll (explicit / config.policies) ::', function() {
 
     // Check that previous policies still exist
     expect(policies.testController[0].toString()).to.equal(testControllerPolicy.toString())
+
+    // Check that action policies still exists
+    const actionPolicies = policies.anotherController.action
+    expect(actionPolicies).to.be.a('array')
+    expect(actionPolicies[0].toString()).to.equal(testControllerPolicy.toString())
+    expect(actionPolicies[1].toString()).to.equal(permissionPolicies.toString())
   })
 
 

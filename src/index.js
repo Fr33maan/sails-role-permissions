@@ -40,7 +40,7 @@ module.exports = function (sails) {
         sails.config.permissions.all = sails.config.permissions['*']
       }
 
-      sails.log.verbose('role-permissions hook initialized')
+      sails.log.verbose('sails-role-permissions hook initialized')
       next()
     },
 
@@ -52,13 +52,19 @@ module.exports = function (sails) {
       if(key === '*' && (typeof value === 'boolean')){
         sails.config.permissions['*'] = value
         sails.config.permissions.all = value // Alias
+        collection[key] = [permissionPolicies]
       }
 
-      // Rebuild the policy with previous policies plus additional policies
-      collection[key] = [
-        ...value,
-        permissionPolicies
-      ]
+      if(value instanceof Array){
+        // Rebuild the policy with previous policies plus additional policies
+        collection[key] = [
+          ...value,
+          permissionPolicies
+        ]
+
+      }else if(value instanceof Object){
+        collection[key] = _.each(value, this.addHookPolicies)
+      }
     },
   };
 };
