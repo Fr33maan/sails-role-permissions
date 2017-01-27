@@ -1,8 +1,7 @@
-require('babel-polyfill')
 
+if(typeof regeneratorRuntime === 'undefined') require('babel-polyfill')
 
 export default async function(req, rolesConfig){
-
 
   const model = req.options.model
   const modelId = req.params.id
