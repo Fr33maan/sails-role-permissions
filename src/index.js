@@ -55,7 +55,10 @@ module.exports = function (sails) {
         collection[key] = [permissionPolicies]
       }
 
-      if(value instanceof Array){
+      if(typeof value === 'string'){
+        collection[key] = [value, permissionPolicies]
+
+      }else if(value instanceof Array){
         // Rebuild the policy with previous policies plus additional policies
         collection[key] = [
           ...value,
