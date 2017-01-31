@@ -29,6 +29,8 @@ function userPolicy(req, res, next){
     s.sails.models.user.findOne({name : 'l1br3'})
     .then(user => {
       req.user = user
+      delete req.body.auth
+
       // Implicit role
       next()
     })
@@ -120,6 +122,40 @@ describe('Ownership Integration ::', function(){
         res.body.name.should.equal('newName')
         done(err)
       })
+    })
+
+    it('should be able to update own profile', function(done){
+
+      request(s.sails.hooks.http.app)
+      .put(`/user/${userInDb.id}`)
+      .send({
+        name : 'newName',
+        auth : 'user'
+      })
+      .expect(200)
+      .end((err, res) => {
+        res.body.name.should.equal('newName')
+        done(err)
+      })
+    })
+
+    it('should NOT be able to update user profile', function(done){
+
+      new Promise(resolve => {
+        s.sails.models.user.create({name : 'toto'})
+        .then(resolve)
+      })
+      .then(user => {
+        request(s.sails.hooks.http.app)
+        .put(`/user/${user.id}`)
+        .send({
+          name : 'newName',
+          auth : 'user'
+        })
+        .expect(403)
+        .end(done)
+      })
+      .catch(done)
     })
 
     it('should be able to update NON owned model when admin', function(done){

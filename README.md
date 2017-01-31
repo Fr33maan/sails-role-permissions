@@ -73,6 +73,7 @@ There is 2 reserved keywords when you specify a role : **guest** and **private**
 `private` is used to declare ownership of an attribute, it will remove it from find request and will be shown in findOne only if req is owner or admin.  
 You don't need to provide both find and findOne config, if findOne config is not found, SRP will use find config.  
 `update` is a private action by default, it means that only owner or admin can update a model.  
+`user` model has special ownership system based on `id` field instead of `owner` filer.  
 
 ```javascript
 module.exports.permissions = {
