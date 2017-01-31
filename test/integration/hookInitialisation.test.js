@@ -74,7 +74,7 @@ describe('hook initialization allowAll (explicit / config.policies) :: ', functi
   })
 
 
-  it('should add role-permission policy to all controllers set in sails.config.policies 123', function(){
+  it('should add role-permission policy to all controllers set in sails.config.policies', function(){
 
     // Check that policies have been changed
     const policies = s.sails.config.policies

@@ -2,7 +2,19 @@ module.exports = {
 
 
   attributes : {
-    name : 'string'
+    name : 'string',
+    favoritePet : 'string',
+
+    tests : {
+      collection: 'test',
+      via : 'users'
+    },
+
+    pets : {
+      collection: 'pet',
+      via : 'users'
+    }
+
   }
 
 }

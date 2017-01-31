@@ -1,6 +1,6 @@
 {
   "name": "sails-role-permissions",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A sails hook to manage role based permissions at controller/action/attribute(row) level",
   "main": "lib/index.js",
   "sails": {

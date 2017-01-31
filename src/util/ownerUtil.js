@@ -10,8 +10,21 @@ export default async function(req, rolesConfig){
 
   const userId = req.user.id
 
-  if(model === 'user' && req.options.action === 'update'){
-    const modelId = req.params.id
+  if(model === 'user'){
+
+    let modelId
+
+    switch(req.options.action){
+      case 'add':
+      case 'remove':
+        modelId = req.params.parentid
+        break
+
+      default:
+        modelId = req.params.id
+
+    }
+
     return modelId === userId
   }
 

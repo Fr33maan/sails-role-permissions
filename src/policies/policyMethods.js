@@ -17,6 +17,7 @@ export default class {
     if(this.policyIsGuest())  return true  // Allow - Throw deny
 
     this.reqIsGuest()   // Throw Deny
+    if(this.policyIsPrivate()) return false // Pending
     if(this.policyIsRole())  return true  // Allow - Throw deny
 
     return false // Policy not covered - Pending
@@ -108,6 +109,10 @@ export default class {
     if(this.reqRole === 'guest' && this.askedRole !== 'guest'){
       throw new Error(this.errorMessages.forbiddenForGuests) //Deny
     }
+  }
+
+  policyIsPrivate(){
+    return this.policy === 'private'
   }
 
   policyIsRole(){

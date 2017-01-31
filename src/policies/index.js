@@ -40,7 +40,7 @@ export default async function(req, res, next, injectedConfig){
     }
 
     // Will allow / deny "add" "remove" "populate" blueprint
-    if(new parametersPolicy(req, config).check())   return next()
+    if(new parametersPolicy(req, config).check()) return next()
 
     // We are using "find" "findOne" "create" "update"
     const filters = attributesFilter(req, config)
@@ -79,7 +79,13 @@ export default async function(req, res, next, injectedConfig){
         return res[data.method](data.data)
       })
 
-    // This case should not happen
+    // This case happen if action is add, remove or populate and policy is private
+    // Otherwise, we already have been allowed / denied
+    }else if(action ==='add' || action === 'populate' || action === 'remove'){
+      if(!isOwner) throw new Error('req is not owner and tried to '+action+' an object')
+      return next()
+
+    // This should not happen
     }else{
       const msg = 'request has not been explicitely allowed and this might be a security issue -> Access Denied'
       throw new Error(msg)

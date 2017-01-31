@@ -28,7 +28,14 @@
      this.askedRole = config[controller][action][attribute] || config.all
 
      this.container = config[controller][action]
-     this.policy = config[controller][action][attribute]
+
+     if(typeof this.container === 'object'){
+       this.policy = config[controller][action][attribute]
+     }else{
+       this.policy = config[controller][action]
+     }
+
+
      this.policyName = attribute
 
      this.errorMessages = messageUtil.generateAttributeErrorMessages(controller, action, attribute, this.reqRole, this.askedRole)

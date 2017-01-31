@@ -40,7 +40,7 @@ export function attributesFilter(req, config, modelDefinition) {
 
   for(let attribute in modelDefinition){
 
-    if(attribute in container){
+    if(typeof container === 'object' && attribute in container){
 
       const policy = container[attribute]
       let visibility

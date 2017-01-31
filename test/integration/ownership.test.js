@@ -24,14 +24,10 @@ const testModel = {
 
 // Authenticate user at each request
 function userPolicy(req, res, next){
-
   if(req.body && req.body.auth === 'user'){
     s.sails.models.user.findOne({name : 'l1br3'})
     .then(user => {
       req.user = user
-      delete req.body.auth
-
-      // Implicit role
       next()
     })
 
@@ -43,7 +39,10 @@ function userPolicy(req, res, next){
     next()
 
   }else{
-    req.user = {} //Implicit roling but not owner
+    //Implicit roling but not owner
+    req.user = {
+      id : 123
+    }
     next()
   }
 }
@@ -76,6 +75,17 @@ describe('Ownership Integration ::', function(){
       permissions : {
         '*' : 'user', // should allow user to create/update his own profile,
         test : {
+          update : {}
+        },
+        user : {
+          populate : {
+            tests : 'private',
+            pets : true
+          },
+          add : {
+            pets : 'private'
+          },
+          remove : 'private',
           update : {}
         }
       }
@@ -129,12 +139,69 @@ describe('Ownership Integration ::', function(){
       request(s.sails.hooks.http.app)
       .put(`/user/${userInDb.id}`)
       .send({
-        name : 'newName',
+        favoritePet : 'unicorn',
         auth : 'user'
       })
       .expect(200)
       .end((err, res) => {
-        res.body.name.should.equal('newName')
+        res.body.favoritePet.should.equal('unicorn')
+        done(err)
+      })
+    })
+
+
+    describe('dependant tests', function(){
+      it('should be able to add pet to own user', function(done){
+
+        request(s.sails.hooks.http.app)
+        .post(`/user/${userInDb.id}/pets`)
+        .send({
+          name : 'peewee',
+          type : 'bear',
+          auth : 'user'
+        })
+        .expect(200)
+        .end((err, res) => {
+          done(err)
+        })
+      })
+
+      it('should be able to remove pet from own user', function(done){
+
+        s.sails.models.user.findOne(userInDb.id).populate('pets')
+        .then(user => {
+          request(s.sails.hooks.http.app)
+          .delete(`/user/${userInDb.id}/pets/${user.pets[0].id}`)
+          .send({auth : 'user'})
+          .expect(200)
+          .end(done)
+        })
+        .catch(done)
+      })
+    })
+
+    it('should be able to update NON owned model when admin', function(done){
+
+      request(s.sails.hooks.http.app)
+      .put(`/test/${testModelInDb.id}`)
+      .send({
+        name : 'newName2',
+        auth : 'admin'
+      })
+      .expect(200)
+      .end((err, res) => {
+        res.body.name.should.equal('newName2')
+        done(err)
+      })
+    })
+
+
+    it('should be able to populate NON owned user', function(done){
+
+      request(s.sails.hooks.http.app)
+      .get(`/user/${userInDb.id}/pets`)
+      .expect(200)
+      .end((err, res) => {
         done(err)
       })
     })
@@ -158,20 +225,6 @@ describe('Ownership Integration ::', function(){
       .catch(done)
     })
 
-    it('should be able to update NON owned model when admin', function(done){
-
-      request(s.sails.hooks.http.app)
-      .put(`/test/${testModelInDb.id}`)
-      .send({
-        name : 'newName2',
-        auth : 'admin'
-      })
-      .expect(200)
-      .end((err, res) => {
-        res.body.name.should.equal('newName2')
-        done(err)
-      })
-    })
 
     it('should NOT be able to update NON owned model', function(done){
 
@@ -180,6 +233,39 @@ describe('Ownership Integration ::', function(){
       .send({
         name : 'newName2'
       })
+      .expect(403)
+      .end((err, res) => {
+        done(err)
+      })
+    })
+
+    it('should NOT be able to populate NON owned user', function(done){
+
+      request(s.sails.hooks.http.app)
+      .get(`/user/${userInDb.id}/tests`)
+      .expect(403)
+      .end((err, res) => {
+        done(err)
+      })
+    })
+
+    it('should NOT be able to add pet to NON owned user', function(done){
+
+      request(s.sails.hooks.http.app)
+      .post(`/user/${userInDb.id}/pets`)
+      .send({
+        type : 'unicorn'
+      })
+      .expect(403)
+      .end((err, res) => {
+        done(err)
+      })
+    })
+
+    it('should NOT be able to remove pet from NON owned user', function(done){
+
+      request(s.sails.hooks.http.app)
+      .delete(`/user/${userInDb.id}/pets/123`)
       .expect(403)
       .end((err, res) => {
         done(err)

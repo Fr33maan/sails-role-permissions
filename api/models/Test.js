@@ -11,6 +11,11 @@ module.exports = {
 
     owner : {
       collection : 'user'
+    },
+
+    users : {
+      collection : 'user',
+      via : 'tests'
     }
   }
 }
