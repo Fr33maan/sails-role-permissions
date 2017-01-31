@@ -17,6 +17,7 @@ export default async function(req, rolesConfig){
     switch(req.options.action){
       case 'add':
       case 'remove':
+      case 'populate':
         modelId = req.params.parentid
         break
 
