@@ -1,0 +1,118 @@
+
+// External modules
+import { Sails }    from 'sails'
+import request      from 'supertest'
+import sinon        from 'sinon'
+import { assert, expect, should }   from 'chai'
+should()
+
+// Utils and config
+import SailsServer  from '../util/SailsServer'
+import mainConfig   from '../config/mainConfig'
+
+// Internal module code
+import permissionPolicies from '../../src/policies'
+import defaultRoles       from '../../src/config/defaultRoles'
+
+let s = new SailsServer()
+
+const testModel = {
+  name : 'testName',
+  email : 'testEmail',
+  password: 'testPassword',
+}
+
+// Authenticate user at each request
+function userPolicy(req, res, next){
+  if(req.body && req.body.auth === 'user'){
+    s.sails.models.user.findOne({name : 'l1br3'})
+    .then(user => {
+      req.user = user
+      next()
+    })
+
+  }else if(req.body && req.body.auth === 'admin'){
+    req.user = {
+      role : 'admin',
+      id: 'anyway'
+    }
+    next()
+
+  }else{
+    //Implicit roling but not owner
+    req.user = {
+      id : 123
+    }
+    next()
+  }
+}
+
+describe('Ownership Integration ::', function(){
+
+  //--------------------
+  //------ FIND --------
+  //--------------------
+
+  describe('update as owner ::', function() {
+
+    let userInDb, petInDb
+
+    const config = {
+      ...mainConfig,
+      policies : {
+        '*' : [userPolicy]
+      },
+      permissions : {
+        '*' : 'user', // should allow user to create/update his own profile,
+        user : {
+          populate : {}
+        },
+        pet : {
+          find : {
+            type : 'private',
+            updatedAt : false
+          }
+        }
+      }
+    }
+
+    before(function (done) {
+
+      async function lift(){
+        try{
+          await s.lift(config)
+          petInDb  = await s.sails.models.pet.create({name  : 'teddy', type:'bear'})
+          userInDb = await s.sails.models.user.create({name : 'l1br3'})
+          userInDb.pets.add(petInDb)
+          await userInDb.save()
+          return null
+
+        }catch(e){
+          return e
+        }
+      }
+
+      lift()
+      .then(done)
+      .catch(done)
+    })
+
+    after(function (done) {
+      s.lower()
+      .then(done)
+      .catch(done)
+    })
+
+    it('should receive filtered pets', function(done){
+
+      request(s.sails.hooks.http.app)
+      .get(`/user/${userInDb.id}/pets`)
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body[0]).to.not.have.ownProperty('updatedAt')
+        expect(res.body[0]).to.not.have.ownProperty('type')
+        done(err)
+      })
+    })
+  })
+})

@@ -239,7 +239,7 @@ describe('Ownership Integration ::', function(){
       })
     })
 
-    it('should NOT be able to populate NON owned user', function(done){
+    it('should NOT be able to populate NON owned user 123', function(done){
 
       request(s.sails.hooks.http.app)
       .get(`/user/${userInDb.id}/tests`)

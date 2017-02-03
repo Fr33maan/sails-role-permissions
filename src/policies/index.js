@@ -1,4 +1,4 @@
-import R from 'ramda'
+import pluralize from 'pluralize'
 
 import controllersPolicy  from './controllersPolicy'
 import actionsPolicy      from './actionsPolicy'
@@ -39,11 +39,30 @@ export default async function(req, res, next, injectedConfig){
       throw new Error(msg)
     }
 
+    // Can be setted by populate or after
+    let filters
+
     // Will allow / deny "add" "remove" "populate" blueprint
-    if(new parametersPolicy(req, config).check()) return next()
+    // Might also Pending populate if a find/findOne policy exists for child model and then filter the results
+    if(new parametersPolicy(req, config).check()){
+
+      // Skip if action is add or remove
+      if(action !== 'populate') return next()
+
+      // check if child model has a find/findOne object policy action
+      const alias = pluralize.singular(req.options.alias)
+
+      // Next if find/findOne policy is not an object
+      if(!config[alias] || (!config[alias].find && !config[alias].findOne)) return next()
+      if(typeof config[alias].find != 'object' && typeof config[alias].findOne != 'object') return next()
+
+      // Set forced action find || findOne
+      const forcedAction = typeof config[alias].find === 'object' ? 'find' : 'findOne'
+      filters = attributesFilter(req, config, null, alias, forcedAction)
+    }
 
     // We are using "find" "findOne" "create" "update"
-    const filters = attributesFilter(req, config)
+    filters = !filters ? attributesFilter(req, config) : filters
 
     // Check ownership and say it req is owner of asked object for 'update' && 'findOne'
     const isOwner = await ownerUtil(req, config.roles) // will return true if user is owner or is admin
@@ -79,9 +98,37 @@ export default async function(req, res, next, injectedConfig){
         return res[data.method](data.data)
       })
 
-    // This case happen if action is add, remove or populate and policy is private
+
+    // This case happen if action is populate and policy is private or if alias has a find/findOne policy which is an object (need filter)
+    }else if(action === 'populate'){
+      // Check ownership
+      if(!isOwner){
+        if(
+          config[controller].populate === 'private'
+          || (typeof config[controller].populate === 'object' && config[controller].populate[req.options.alias] === 'private')
+        ){
+          throw new Error('req is not owner and tried to '+action+' an object')
+        }
+      }
+
+      // Call blueprint if find or findOne
+      const blueprint = sails.hooks.blueprints.middleware[action.toLowerCase()]
+      new Promise((resolve, reject) => {
+        return blueprint(req, resUtil(res, resolve, reject))
+      })
+      .then(models => {
+        // Filter result
+        return res.ok(filterArrayOrObject(models, filters, isOwner))
+      })
+      .catch(data => {
+        // Send error response
+        return res[data.method](data.data)
+      })
+
+
+    // This case happen if action is add, remove and policy is private
     // Otherwise, we already have been allowed / denied
-    }else if(action ==='add' || action === 'populate' || action === 'remove'){
+    }else if(action ==='add' || action === 'remove'){
       if(!isOwner) throw new Error('req is not owner and tried to '+action+' an object')
       return next()
 

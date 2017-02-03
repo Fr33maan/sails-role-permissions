@@ -82,6 +82,13 @@ module.exports.permissions = {
 
   channel : true, // controller level policy - everybody can access all actions and all attributes (except creating autoAttributes)
 
+  pet : {
+    find : {
+      name : true,
+      type : 'private'
+    }
+  },
+
   user : {
     destroy : 'admin', // action level policy - action available for 'admin' role only
 
@@ -94,7 +101,11 @@ module.exports.permissions = {
         computedAttribute : false // this attribute is protected and no one even admin can create it with blueprints
     },
 
-    update : {} //You ABSOLUTELY MUST set a policy to update to activate ownership check 
+    update : {}, //You ABSOLUTELY MUST set a policy to update to activate ownership check,
+
+    populate : {
+      pets : true // Will filter pets with pet.find filter
+    }
   }
 }
 ```
@@ -102,6 +113,9 @@ module.exports.permissions = {
 ---
 
 ## Changelog  
+#### 0.2.0
+- filters on populate
+
 #### 0.1.0
 - global level permission
 - controller level permission
@@ -115,3 +129,4 @@ module.exports.permissions = {
 - use .omit and .select waterline queries to gain performance over filtering after request once 1.x has been released
 - refactor tests with await/async instead of promises
 - remove Ramda dependency and use only lodash so module won't have more dependencies than sails
+- refactor main policy with methods

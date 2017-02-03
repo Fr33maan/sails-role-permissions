@@ -5,9 +5,9 @@ import messageUtil from '../util/messageUtil'
 import R from 'ramda'
 
 
-export function attributesFilter(req, config, modelDefinition) {
+export function attributesFilter(req, config, modelDefinition, forceModel, forceAction) {
 
-  const modelName = req.options.controller
+  const modelName = forceModel || req.options.controller
 
   // Assume that we are in sails environment because we manually inject modelDefinition for testing
   if(!modelDefinition){
@@ -20,8 +20,8 @@ export function attributesFilter(req, config, modelDefinition) {
     }
   }
 
-  const controller  = req.options.controller
-  const action      = req.options.action
+  const controller  = forceModel || req.options.controller
+  const action      = forceAction || req.options.action
   let container     = config[controller][action]
 
   // Take find config if findOne config does not exists
