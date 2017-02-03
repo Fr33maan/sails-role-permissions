@@ -47,7 +47,7 @@ export default async function(req, rolesConfig){
           if(owner === userId) return true
 
         // owner is an object and we expect an id parameter inside
-      }else if('id' in owner){
+        }else if('id' in owner){
           if(owner.id === userId) return true
         }
       }

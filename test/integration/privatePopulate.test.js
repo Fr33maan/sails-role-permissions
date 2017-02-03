@@ -47,6 +47,14 @@ function userPolicy(req, res, next){
   }
 }
 
+function auth(req, res, next){
+  s.sails.models.user.findOne({name : 'l1br3'})
+  .then(user => {
+    req.user = user
+    next()
+  })
+}
+
 describe('Populate filter Integration ::', function(){
 
   //--------------------
@@ -118,14 +126,14 @@ describe('Populate filter Integration ::', function(){
 
 
 
-  describe('populate another object  ::', function() {
+  describe('populate another object ::', function() {
 
-    let userInDb, testInDb
+    let userInDb, testInDb, testInDb2
 
     const config = {
       ...mainConfig,
       policies : {
-        '*' : [userPolicy]
+        '*' : [auth]
       },
       permissions : {
         '*' : 'user', // should allow user to create/update his own profile,
@@ -146,10 +154,13 @@ describe('Populate filter Integration ::', function(){
       async function lift(){
         try{
           await s.lift(config)
-          userInDb = await s.sails.models.user.create({name : 'l1br3', email : 'l1br3@github.com'})
-          testInDb = await s.sails.models.test.create({name : 'test'})
+          userInDb  = await s.sails.models.user.create({name : 'l1br3', email : 'l1br3@github.com'})
+          testInDb  = await s.sails.models.test.create({name : 'test'})
+          testInDb2 = await s.sails.models.test.create({name : 'test', owner : userInDb.id})
           testInDb.users.add(userInDb)
+          testInDb2.users.add(userInDb)
           await testInDb.save()
+          await testInDb2.save()
           return null
 
         }catch(e){
@@ -168,10 +179,22 @@ describe('Populate filter Integration ::', function(){
       .catch(done)
     })
 
-    it('should receive filtered users 123', function(done){
+    it('should receive filtered users when user is NON owner of populated model', function(done){
 
       request(s.sails.hooks.http.app)
       .get(`/test/${testInDb.id}/users`)
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body[0]).to.not.have.ownProperty('email')
+        expect(res.body[0]).to.not.have.ownProperty('updatedAt')
+        done(err)
+      })
+    })
+
+    it('should receive filtered users when user is owner of populated model', function(done){
+
+      request(s.sails.hooks.http.app)
+      .get(`/test/${testInDb2.id}/users`)
       .expect(200)
       .end((err, res) => {
         expect(res.body[0]).to.not.have.ownProperty('email')

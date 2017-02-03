@@ -118,7 +118,7 @@ export default async function(req, res, next, injectedConfig){
       })
       .then(models => {
         // Filter result
-        return res.ok(filterArrayOrObject(models, filters, isOwner))
+        return res.ok(filterArrayOrObject(models, filters, false))
       })
       .catch(data => {
         // Send error response

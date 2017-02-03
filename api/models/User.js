@@ -3,6 +3,7 @@ module.exports = {
 
   attributes : {
     name : 'string',
+    email : 'string',
     favoritePet : 'string',
 
     tests : {
