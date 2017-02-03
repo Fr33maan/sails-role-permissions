@@ -47,13 +47,13 @@ function userPolicy(req, res, next){
   }
 }
 
-describe('Ownership Integration ::', function(){
+describe('Populate filter Integration ::', function(){
 
   //--------------------
   //------ FIND --------
   //--------------------
 
-  describe('update as owner ::', function() {
+  describe('populate a user ::', function() {
 
     let userInDb, petInDb
 
@@ -111,6 +111,71 @@ describe('Ownership Integration ::', function(){
       .end((err, res) => {
         expect(res.body[0]).to.not.have.ownProperty('updatedAt')
         expect(res.body[0]).to.not.have.ownProperty('type')
+        done(err)
+      })
+    })
+  })
+
+
+
+  describe('populate another object  ::', function() {
+
+    let userInDb, testInDb
+
+    const config = {
+      ...mainConfig,
+      policies : {
+        '*' : [userPolicy]
+      },
+      permissions : {
+        '*' : 'user', // should allow user to create/update his own profile,
+        test : {
+          populate : {}
+        },
+        user : {
+          find : {
+            email : 'private',
+            updatedAt : false
+          }
+        }
+      }
+    }
+
+    before(function (done) {
+
+      async function lift(){
+        try{
+          await s.lift(config)
+          userInDb = await s.sails.models.user.create({name : 'l1br3', email : 'l1br3@github.com'})
+          testInDb = await s.sails.models.test.create({name : 'test'})
+          testInDb.users.add(userInDb)
+          await testInDb.save()
+          return null
+
+        }catch(e){
+          return e
+        }
+      }
+
+      lift()
+      .then(done)
+      .catch(done)
+    })
+
+    after(function (done) {
+      s.lower()
+      .then(done)
+      .catch(done)
+    })
+
+    it('should receive filtered users 123', function(done){
+
+      request(s.sails.hooks.http.app)
+      .get(`/test/${testInDb.id}/users`)
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body[0]).to.not.have.ownProperty('email')
+        expect(res.body[0]).to.not.have.ownProperty('updatedAt')
         done(err)
       })
     })

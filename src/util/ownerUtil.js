@@ -4,28 +4,25 @@ if(typeof regeneratorRuntime === 'undefined') require('babel-polyfill')
 export default async function(req, rolesConfig){
 
   const model = req.options.model
-  const modelId = req.params.id
+  let modelId
 
   if(!req.user || !req.user.id) return false
 
   const userId = req.user.id
 
+  switch(req.options.action){
+    case 'add':
+    case 'remove':
+    case 'populate':
+      modelId = req.params.parentid
+      break
+
+    default:
+      modelId = req.params.id
+
+  }
+  
   if(model === 'user'){
-
-    let modelId
-
-    switch(req.options.action){
-      case 'add':
-      case 'remove':
-      case 'populate':
-        modelId = req.params.parentid
-        break
-
-      default:
-        modelId = req.params.id
-
-    }
-
     return modelId === userId
   }
 

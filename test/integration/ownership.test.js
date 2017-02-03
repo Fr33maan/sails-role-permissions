@@ -239,7 +239,7 @@ describe('Ownership Integration ::', function(){
       })
     })
 
-    it('should NOT be able to populate NON owned user 123', function(done){
+    it('should NOT be able to populate NON owned user', function(done){
 
       request(s.sails.hooks.http.app)
       .get(`/user/${userInDb.id}/tests`)
@@ -265,7 +265,7 @@ describe('Ownership Integration ::', function(){
     it('should NOT be able to remove pet from NON owned user', function(done){
 
       request(s.sails.hooks.http.app)
-      .delete(`/user/${userInDb.id}/pets/123`)
+      .delete(`/user/${userInDb.id}/pets/456`)
       .expect(403)
       .end((err, res) => {
         done(err)
