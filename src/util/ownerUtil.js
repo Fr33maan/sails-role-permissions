@@ -21,11 +21,12 @@ export default async function(req, rolesConfig){
       modelId = req.params.id
 
   }
-  
+
   if(model === 'user'){
     return modelId === userId
   }
 
+  if(!modelId) return false
   const modelInDb = await sails.models[model].findOne(modelId).populate('owner')
 
   if(!modelInDb) throw new Error('model not found - id given in parameter is not valid')
