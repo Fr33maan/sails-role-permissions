@@ -105,7 +105,9 @@ module.exports.permissions = {
 
     populate : {
       pets : true // Will filter pets with pet.find filter
-    }
+    },
+
+    mycustomaction : true //actions in config MUST be in lowercase due to sails request processing (even if your action in your controller is in camelCase)
   }
 }
 ```
