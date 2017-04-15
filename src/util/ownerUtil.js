@@ -1,5 +1,5 @@
 
-if(typeof regeneratorRuntime === 'undefined') require('babel-polyfill')
+// if(typeof regeneratorRuntime === 'undefined') require('babel-polyfill')
 
 export default async function(req, rolesConfig){
 
