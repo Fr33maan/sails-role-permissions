@@ -64,6 +64,10 @@ export default async function(req, res, next, injectedConfig){
     // We are using "find" "findOne" "create" "update"
     filters = !filters ? attributesFilter(req, config) : filters
 
+    if(sails.config.permissionsTest.filters){
+      console.log(filters)
+    }
+
     // Check ownership and say it req is owner of asked object for 'update' && 'findOne'
     const isOwner = await ownerUtil(req, config.roles) // will return true if user is owner or is admin
 
@@ -139,9 +143,12 @@ export default async function(req, res, next, injectedConfig){
     }
 
   }catch(e){
-    if(sails.config.permissionsTest){
+    if(sails.config.permissionsTest.message){
       console.log(e.message)
-      // console.log(e.stack)
+    }
+
+    if(sails.config.permissionsTest.stack){
+      console.log(e.stack)
     }
 
     res.forbidden(e)
