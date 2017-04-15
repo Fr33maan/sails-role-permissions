@@ -9,13 +9,12 @@ export default class SailsServer {
 
     // Add additionalConfig to default config
     const config = {
-      ...additionalConfig,
-      permissionsTest : true,
       hooks: {
         "sails-role-permissions": require('../../src/index.js'),
         "grunt": false
       },
       log: {level: "error"},
+      ...additionalConfig,
     }
 
     return new Promise((resolve, reject) => {
