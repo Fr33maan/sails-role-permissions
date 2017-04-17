@@ -52,6 +52,11 @@ SRP allows you to set controller/action/attribute permissions level with very mi
 - **WARNING with populate**
 *Due to granularity needed in permissions, an action can bypass some higher security configuration. Populate is one of them.*
 *If you set `populate : true/role` in your config, the result of the action will NOT be filtered. `private` will still deny access to non owner requests.*
+
+#### Limitations
+- **Why I cannot bypass populate.pets filter and filter populate.buildings ?**
+*Due to policy complexity, if populate attributes are set, filters will be applied on them, even if `populate: {pets : true}` it will not be bypassed.*
+*As bypass could be a security issue, I will NOT change it in the future, I prefer to keep explicit filters.*
 ---
 
 ## Configuration
