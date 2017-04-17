@@ -115,6 +115,10 @@ export default async function(req, res, next, injectedConfig){
         }
       }
 
+      const alias = pluralize.singular(req.options.alias)
+      const useOwnershipOnPopulated = config[alias] && config[alias].populatePrivateAttributes
+      const isOwnerOfPopulated = useOwnershipOnPopulated && isOwner
+
       // Call blueprint if find or findOne
       const blueprint = sails.hooks.blueprints.middleware[action.toLowerCase()]
       new Promise((resolve, reject) => {
@@ -122,7 +126,7 @@ export default async function(req, res, next, injectedConfig){
       })
       .then(models => {
         // Filter result
-        return res.ok(filterArrayOrObject(models, filters, false))
+        return res.ok(filterArrayOrObject(models, filters, isOwnerOfPopulated))
       })
       .catch(data => {
         // Send error response
