@@ -13,7 +13,7 @@ export default class SailsServer {
         "sails-role-permissions": require('../../src/index.js'),
         "grunt": false
       },
-      log: {level: "error"},
+      log: {level: "warn"},
       ...additionalConfig,
     }
 

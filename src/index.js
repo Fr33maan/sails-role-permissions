@@ -40,10 +40,32 @@ module.exports = function (sails) {
         sails.config.permissions.all = sails.config.permissions['*']
       }
 
+
+      // Check that no populate policy is set to true
+      this.checkPoliciesValidity(sails.config.permissions)
+
       sails.log.verbose('sails-role-permissions hook initialized')
       next()
     },
 
+    checkPoliciesValidity: function(config){
+      _.each(config, (cPolicies, controller) => {
+
+        // We don't take any action if controller is not a sails model
+        if(!(controller in sails.models)) return
+
+        if(typeof cPolicies === 'object'){
+          _.each(cPolicies, (cAction, action) => {
+
+            switch(action){
+              case 'populate':
+                if(cAction === true) sails.log.warn(`sails-role-permissions hook - Populate policy is set to true, NO FILTER WILL BE APPLIED ON IT => ${controller} - ${action}`)
+            }
+
+          })
+        }
+      })
+    },
 
     // Function to manipulate sails policies and add permissionsPolicies
     addHookPolicies: function(value, key, collection){
