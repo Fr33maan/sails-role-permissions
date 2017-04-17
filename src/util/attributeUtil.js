@@ -2,7 +2,7 @@
 
 import RoleUtil from '../util/RoleUtil'
 import messageUtil from '../util/messageUtil'
-import R from 'ramda'
+import _ from 'lodash'
 
 
 export function attributesFilter(req, config, modelDefinition, forceModel, forceAction) {
@@ -78,10 +78,10 @@ export function attributesFilter(req, config, modelDefinition, forceModel, force
 export function removeAutoAttributes(arrayOrObject){
 
   if(arrayOrObject instanceof Array){
-    return arrayOrObject.map(R.omit(['id', 'createdAt', 'updatedAt']))
+    return arrayOrObject.map(object => _.omit(object, ['id', 'createdAt', 'updatedAt']))
 
   }else{
-    return R.omit(['id', 'createdAt', 'updatedAt'], arrayOrObject)
+    return _.omit(arrayOrObject, ['id', 'createdAt', 'updatedAt'])
   }
 }
 
