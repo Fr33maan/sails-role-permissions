@@ -44,7 +44,7 @@ describe('attributesFilter', function(){
           find : {
             password : false,
             email : 'private',
-            updatedAt : 'private'
+            updatedAt : true
           }
         }
       }
@@ -52,8 +52,8 @@ describe('attributesFilter', function(){
       const filters = attributesFilter(req, config, mainModelDefinition)
 
       filters.should.eql({
-        allowed : ['name', 'id', 'createdAt'],
-        private : ['email', 'updatedAt'],
+        allowed : ['name', 'id', 'createdAt', 'updatedAt'],
+        private : ['email'],
       })
     })
 

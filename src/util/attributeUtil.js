@@ -61,6 +61,9 @@ export function attributesFilter(req, config, modelDefinition, forceModel, force
 
         // If reqRole is allowed, set attribute as allowed
         if(RoleUtilInstance.isRoleAllowed(policy)) filters.allowed.push(attribute)
+
+      }else if(typeof policy === 'boolean'){
+        if(policy) filters.allowed.push(attribute)
       }
 
     }else{
