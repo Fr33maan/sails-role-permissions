@@ -1,10 +1,14 @@
 # sails-role-permissions (SRP)
 
+Focus on your business logic, stop writing code about users' permissions !
+
 `sails-role-permissions` (SRP) allows you to configure permissionning in the easiest possible way. No code to write, nothing to store in db, no extra controllers/models and nothing to change but **only 1 config file** for your entire app and the magic happens !
 
 SRP allows you to set controller/action/attribute permissions level with very minimalistic configuration.
 
 ## Installation
+
+**/!\ WARNING : This module is a security part of your app, a misconfiguration WILL create security issues. READ CAREFULLY the readme.**
 
 `npm install --save sails-role-permissions`
 
@@ -18,6 +22,7 @@ SRP allows you to set controller/action/attribute permissions level with very mi
 
 ## FAQ
 
+#### Concepts
 - **Why this module ?**
 *Blueprints are something wonderful but they are too permissive for a production app, you have to write many `config/policies.js`. The problem is you cannot easily set attribute-level (aka row-level) permissioning in a easy way with policies. SRP does this job for you.*
 
@@ -39,7 +44,14 @@ SRP allows you to set controller/action/attribute permissions level with very mi
 - **How does SRP reject request ?**
 *SRP call res.forbidden(Error). SRP tries to reject consitent error message which clearly indicate what is happening.*
 
+#### Usage
+ - **Why my populated models does not contains private attributes even if I am owner of parent model**
+*By default and for security reasons, populated models does not allow to display private attributes. I built this module for a chat, imagine that the owner of the sails channel you are chatting in could have access to all users' emails ?*
+*You can use the `populatePrivateAttributes` in your nested model configuration to overwrite this.*
 
+- **WARNING with populate**
+*Due to granularity needed in permissions, an action can bypass some higher security configuration. Populate is one of them.*
+*If you set `populate : true/role` in your config, the result of the action will NOT be filtered. `private` will still deny access to non owner requests.*
 ---
 
 ## Configuration
@@ -84,12 +96,15 @@ module.exports.permissions = {
     stack : true,
     filters : true
   },
-  
+
   '*' : false, // Global wildcard
 
   channel : true, // controller level policy - everybody can access all actions and all attributes (except creating autoAttributes)
 
   pet : {
+    // By default, private pets attributes won't be in populated models (eg. User.findOne(userId).populate('pets'))
+    populatePrivateAttributes : true,
+
     find : {
       name : true,
       type : 'private'
