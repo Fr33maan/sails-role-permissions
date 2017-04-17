@@ -32,4 +32,29 @@ export default class SailsServer {
       this.sails.lower(resolve)
     })
   }
+
+  start(config, fixtures){
+    const self = this
+    return done => {
+      async function lift(){
+        try{
+          await self.lift(config)
+          await fixtures()
+        }catch(e){
+          return e
+        }
+      }
+      lift()
+      .then(done)
+      .catch(done)
+    }
+  }
+
+  stop(){
+    return done => {
+      this.lower()
+      .then(done)
+      .catch(done)
+    }
+  }
 }
