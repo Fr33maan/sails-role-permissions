@@ -64,7 +64,7 @@ export default async function(req, res, next, injectedConfig){
     // We are using "find" "findOne" "create" "update"
     filters = !filters ? attributesFilter(req, config) : filters
 
-    if(sails.config.permissionsTest && sails.config.permissionsTest.filters){
+    if(config.debug && config.debug.filters){
       console.log(filters)
     }
 
@@ -143,11 +143,11 @@ export default async function(req, res, next, injectedConfig){
     }
 
   }catch(e){
-    if(sails.config.permissionsTest && sails.config.permissionsTest.message){
+    if(config.debug && config.debug.message){
       console.log(e.message)
     }
 
-    if(sails.config.permissionsTest && sails.config.permissionsTest.stack){
+    if(config.debug && config.debug.stack){
       console.log(e.stack)
     }
 

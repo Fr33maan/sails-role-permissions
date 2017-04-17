@@ -78,6 +78,13 @@ Additionaly to those config attributes, you will set policies by controller :
 ```javascript
 module.exports.permissions = {
 
+  // Sometimes you find a bug or you don't understand what happen. Your app does not log messages in console if a forbidden response is sent or you just want to SEE how your config is transformed into filters.
+  debug : {
+    message : true,
+    stack : true,
+    filters : true
+  },
+  
   '*' : false, // Global wildcard
 
   channel : true, // controller level policy - everybody can access all actions and all attributes (except creating autoAttributes)
