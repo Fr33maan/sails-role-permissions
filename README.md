@@ -143,7 +143,7 @@ module.exports.permissions = {
 
 ## Changelog
 #### 0.3.0
-- Ramda is not a dep anymore, use only lodash
+- Ramda is not a dependency anymore, use only lodash
 
 #### 0.2.0
 - filters on populate
