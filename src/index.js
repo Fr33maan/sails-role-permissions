@@ -1,7 +1,7 @@
 
 import permissionPolicies from './policies'
 import defaultRoles       from './config/defaultRoles'
-
+import _                  from 'lodash' 
 
 module.exports = function (sails) {
   return {
