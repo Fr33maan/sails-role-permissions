@@ -39,12 +39,15 @@ export default async function(req, res, next, injectedConfig){
       throw new Error(msg)
     }
 
+    // Check ownership and say it req is owner of asked object for 'update' && 'findOne'
+    const isOwner = await ownerUtil(req, config.roles) // will return true if user is owner or is admin
+
     // Can be setted by populate or after
     let filters
 
     // Will allow / deny "add" "remove" "populate" blueprint
     // Might also Pending populate if a find/findOne policy exists for child model and then filter the results
-    if(new parametersPolicy(req, config).check()){
+    if(new parametersPolicy(req, config, isOwner).check()){
 
       // Skip if action is add or remove
       if(action !== 'populate') return next()
@@ -67,9 +70,6 @@ export default async function(req, res, next, injectedConfig){
     if(config.debug && config.debug.filters){
       console.log(filters)
     }
-
-    // Check ownership and say it req is owner of asked object for 'update' && 'findOne'
-    const isOwner = await ownerUtil(req, config.roles) // will return true if user is owner or is admin
 
     if(action === 'create'){
       // Filter body

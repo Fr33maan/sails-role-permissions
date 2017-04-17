@@ -10,7 +10,7 @@
 
  export default class parametersPolicy extends policyMethods {
 
-   constructor(req, config){
+   constructor(req, config, isOwner){
 
      super()
 
@@ -35,6 +35,7 @@
        this.policy = config[controller][action]
      }
 
+     this.isOwner = isOwner
 
      this.policyName = attribute
 
@@ -45,6 +46,26 @@
      // Check if action is something else than add, remove or populate and go to next policy if so - do it as soon as possible
      return (this.action !== 'add' && this.action !== 'remove' && this.action !== 'populate')
    }
+
+   check(){
+     if(this.customPreCheck && this.customPreCheck()) return false // Pending
+     this.configRoleUtil()
+     if(this.policyIsObject()) return true // Filter
+     if(this.policyIsPrivate()) return this.isOwner // Pending or filter
+     if(this.wildcardIsTrue()) return true  // Filter
+
+     this.wildcardFalseAndNoBypass() // Throw Deny
+     this.policyIsFalse()            // Throw Deny
+
+     if(this.wildcardAsRole()) return true  // Filter - Throw deny
+     if(this.policyIsGuest())  return true  // Filter - Throw deny
+
+     this.reqIsGuest()   // Throw Deny
+     if(this.policyIsRole())  return true  // Filter - Throw deny
+
+     return false // Policy not covered - Pending
+   }
+
 
  }
 

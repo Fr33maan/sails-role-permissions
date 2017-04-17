@@ -23,47 +23,20 @@ const testModel = {
 }
 
 // Authenticate user at each request
+let userToUseInAuth = null
 function userPolicy(req, res, next){
-  if(req.body && req.body.auth === 'user'){
-    s.sails.models.user.findOne({name : 'l1br3'})
-    .then(user => {
-      req.user = user
-      next()
-    })
-
-  }else if(req.body && req.body.auth === 'admin'){
-    req.user = {
-      role : 'admin',
-      id: 'anyway'
-    }
-    next()
-
-  }else{
-    //Implicit roling but not owner
-    req.user = {
-      id : 123
-    }
-    next()
+  if(userToUseInAuth !== false){
+    req.user = userToUseInAuth || {id: 123}
   }
+  next()
 }
 
-function auth(req, res, next){
-  s.sails.models.user.findOne({name : 'l1br3'})
-  .then(user => {
-    req.user = user
-    next()
-  })
-}
 
-describe('Populate filter Integration ::', function(){
+describe('populate/privatePopulate Integration ::', function(){
 
-  //--------------------
-  //------ FIND --------
-  //--------------------
+  let userInDb, userInDb2, petInDb, testInDb, testInDb2
 
-  describe('populate a user ::', function() {
-
-    let userInDb, petInDb
+  describe("populate object's private attributes :: ", function() {
 
     const config = {
       ...mainConfig,
@@ -71,48 +44,70 @@ describe('Populate filter Integration ::', function(){
         '*' : [userPolicy]
       },
       permissions : {
+        debug : {
+          message : true,
+          filters: false
+        },
         '*' : 'user', // should allow user to create/update his own profile,
         user : {
-          populate : {}
+          populate : {
+            pet : 'user'
+          },
+          find : {
+            email : 'private',
+            updatedAt : false
+          }
         },
         pet : {
+          populatePrivateAttributes : true,
           find : {
             type : 'private',
             updatedAt : false
+          }
+        },
+        test : {
+          populate : {
+            user : 'user'
           }
         }
       }
     }
 
-    before(function (done) {
+    const fixtures = async function(){
+      // Create user and pet and populate user with pet
+      petInDb  = await s.sails.models.pet.create({name  : 'teddy', type:'bear'})
+      userInDb = await s.sails.models.user.create({name : 'l1br3'})
+      userInDb.pets.add(petInDb)
+      await userInDb.save()
 
-      async function lift(){
-        try{
-          await s.lift(config)
-          petInDb  = await s.sails.models.pet.create({name  : 'teddy', type:'bear'})
-          userInDb = await s.sails.models.user.create({name : 'l1br3'})
-          userInDb.pets.add(petInDb)
-          await userInDb.save()
-          return null
+      // Create test objects and populate it with user
+      testInDb  = await s.sails.models.test.create({name : 'test'})
+      testInDb2 = await s.sails.models.test.create({name : 'test', owner : userInDb.id})
+      testInDb.users.add(userInDb)
+      testInDb2.users.add(userInDb)
+      await testInDb.save()
+      await testInDb2.save()
 
-        }catch(e){
-          return e
-        }
-      }
+      return null
+    }
 
-      lift()
-      .then(done)
-      .catch(done)
+    before(s.start(config, fixtures))
+    after(s.stop())
+    beforeEach(function(){ userToUseInAuth = null })
+
+    it('should receive non filtered pets when user is owner and pet.populatePrivateAttributes is true', function(done){
+      userToUseInAuth = userInDb
+      request(s.sails.hooks.http.app)
+      .get(`/user/${userInDb.id}/pets`)
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body[0]).to.not.have.ownProperty('updatedAt')
+        expect(res.body[0]).to.have.ownProperty('type')
+        done(err)
+      })
     })
 
-    after(function (done) {
-      s.lower()
-      .then(done)
-      .catch(done)
-    })
-
-    it('should receive filtered pets', function(done){
-
+    it('should receive filtered pets when user is NON owner even if pet.populatePrivateAttributes is true', function(done){
       request(s.sails.hooks.http.app)
       .get(`/user/${userInDb.id}/pets`)
       .expect(200)
@@ -122,64 +117,9 @@ describe('Populate filter Integration ::', function(){
         done(err)
       })
     })
-  })
-
-
-
-  describe('populate another object ::', function() {
-
-    let userInDb, testInDb, testInDb2
-
-    const config = {
-      ...mainConfig,
-      policies : {
-        '*' : [auth]
-      },
-      permissions : {
-        '*' : 'user', // should allow user to create/update his own profile,
-        test : {
-          populate : {}
-        },
-        user : {
-          find : {
-            email : 'private',
-            updatedAt : false
-          }
-        }
-      }
-    }
-
-    before(function (done) {
-
-      async function lift(){
-        try{
-          await s.lift(config)
-          userInDb  = await s.sails.models.user.create({name : 'l1br3', email : 'l1br3@github.com'})
-          testInDb  = await s.sails.models.test.create({name : 'test'})
-          testInDb2 = await s.sails.models.test.create({name : 'test', owner : userInDb.id})
-          testInDb.users.add(userInDb)
-          testInDb2.users.add(userInDb)
-          await testInDb.save()
-          await testInDb2.save()
-          return null
-
-        }catch(e){
-          return e
-        }
-      }
-
-      lift()
-      .then(done)
-      .catch(done)
-    })
-
-    after(function (done) {
-      s.lower()
-      .then(done)
-      .catch(done)
-    })
 
     it('should receive filtered users when user is NON owner of populated model', function(done){
+      userToUseInAuth = userInDb
 
       request(s.sails.hooks.http.app)
       .get(`/test/${testInDb.id}/users`)
@@ -191,7 +131,7 @@ describe('Populate filter Integration ::', function(){
       })
     })
 
-    it('should receive filtered users when user is owner of populated model', function(done){
+    it('should receive filtered users when user is owner of populated model and pet.populatePrivateAttributes is not defined', function(done){
 
       request(s.sails.hooks.http.app)
       .get(`/test/${testInDb2.id}/users`)
@@ -201,6 +141,189 @@ describe('Populate filter Integration ::', function(){
         expect(res.body[0]).to.not.have.ownProperty('updatedAt')
         done(err)
       })
+    })
+  })
+
+
+
+  describe("NO FILTER on populate object's private attributes when populate.model is true ::", function() {
+
+    const config = {
+      ...mainConfig,
+      policies : {'*' : [userPolicy]},
+      permissions : {
+        debug : {filters: true, message: true},
+        '*' : 'user', // should allow user to create/update his own profile,
+        test : {
+          populate : 'user'
+        },
+        user : {
+          populate : true,
+          find : {
+            email : 'private'
+          }
+        },
+        pet : {
+          find : {
+            type : false
+          }
+        }
+      }
+    }
+
+    const fixtures = async function(){
+      petInDb  = await s.sails.models.pet.create({name  : 'teddy', type:'bear'})
+      userInDb = await s.sails.models.user.create({name : 'l1br3', email: 'test@mail'})
+      userInDb2 = await s.sails.models.user.create({name : 'jean', email: 'test@mail'})
+      userInDb.pets.add(petInDb)
+      await userInDb.save()
+
+      // Create test objects and populate it with user
+      testInDb  = await s.sails.models.test.create({name : 'test'})
+      testInDb2 = await s.sails.models.test.create({name : 'test', owner : userInDb.id})
+      testInDb.users.add(userInDb)
+      testInDb2.users.add(userInDb)
+      await testInDb.save()
+      await testInDb2.save()
+
+      return null
+    }
+
+    before(s.start(config, fixtures))
+    after(s.stop())
+    beforeEach(function(){ userToUseInAuth = null })
+
+    it('should receive non filtered pets when user is guest and populate policy is true', function(done){
+      userToUseInAuth = false
+      request(s.sails.hooks.http.app)
+      .get(`/user/${userInDb.id}/pets`)
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body[0]).to.have.ownProperty('type')
+        done()
+      })
+    })
+
+    it('should receive non filtered users when req is user and populate policy is user', function(done){
+      request(s.sails.hooks.http.app)
+      .get(`/test/${testInDb.id}/users`)
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body[0]).to.have.ownProperty('email')
+        done()
+      })
+    })
+  })
+
+
+  describe("filter on populate object's private attributes ::", function() {
+
+    const config = {
+      ...mainConfig,
+      policies : {'*' : [userPolicy]},
+      permissions : {
+        '*' : 'user', // should allow user to create/update his own profile,
+        user : {
+          populate : {
+            pets : 'private'
+          }
+        },
+        pet : {
+          populatePrivateAttributes : true,
+          find : {
+            type : 'private',
+            updatedAt : false
+          }
+        }
+      }
+    }
+
+    const fixtures = async function(){
+      petInDb  = await s.sails.models.pet.create({name  : 'teddy', type:'bear'})
+      userInDb = await s.sails.models.user.create({name : 'l1br3'})
+      userInDb.pets.add(petInDb)
+      await userInDb.save()
+      return null
+    }
+
+    before(s.start(config, fixtures))
+    after(s.stop())
+    beforeEach(function(){ userToUseInAuth = null })
+
+    it('should receive filtered pets when user is owner and populate policy is private ', function(done){
+      userToUseInAuth = userInDb
+
+      request(s.sails.hooks.http.app)
+      .get(`/user/${userInDb.id}/pets`)
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body[0]).to.have.ownProperty('type')
+        done()
+      })
+    })
+
+    it('should deny access when user is NOT owner and populate policy is private', function(done){
+      userToUseInAuth = userInDb2
+      request(s.sails.hooks.http.app)
+      .get(`/user/${userInDb.id}/pets`)
+      .expect(403)
+      .end(done)
+    })
+  })
+
+  describe("populate object's private attributes without filter(populated model.find)::", function() {
+
+    const config = {
+      ...mainConfig,
+      policies : {'*' : [userPolicy]},
+      permissions : {
+        '*' : 'user', // should allow user to create/update his own profile,
+        user : {
+          populate : {
+            pets : 'private'
+          }
+        },
+        pet : {
+          anAction : true
+        }
+      }
+    }
+
+    const fixtures = async function(){
+      petInDb  = await s.sails.models.pet.create({name  : 'teddy', type:'bear'})
+      userInDb = await s.sails.models.user.create({name : 'l1br3'})
+      userInDb2 = await s.sails.models.user.create({name : 'anUser'})
+      userInDb.pets.add(petInDb)
+      await userInDb.save()
+      return null
+    }
+
+    before(s.start(config, fixtures))
+    after(s.stop())
+    beforeEach(function(){ userToUseInAuth = null })
+
+    it('should receive UNFILTERED pets when user is owner and populate policy is private and no filter is defined', function(done){
+      userToUseInAuth = userInDb
+
+      request(s.sails.hooks.http.app)
+      .get(`/user/${userInDb.id}/pets`)
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body[0]).to.have.ownProperty('name')
+        expect(res.body[0]).to.have.ownProperty('type')
+        expect(res.body[0]).to.have.ownProperty('id')
+        expect(res.body[0]).to.have.ownProperty('createdAt')
+        expect(res.body[0]).to.have.ownProperty('updatedAt')
+        done()
+      })
+    })
+
+    it('should deny access when user is NOT owner and populate policy is private', function(done){
+      userToUseInAuth = userInDb2
+      request(s.sails.hooks.http.app)
+      .get(`/user/${userInDb.id}/pets`)
+      .expect(403)
+      .end(done)
     })
   })
 })
