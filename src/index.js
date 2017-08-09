@@ -18,31 +18,32 @@ module.exports = function (sails) {
 
     // Initialize the hook
     initialize: function (next) {
-      const policies = sails.config.policies
+      const policies    = sails.config.policies
+      const permissions = sails.config.permissions
 
       // Flavour sails policies with additional permissionsPolicies
       sails.config.policies = _.each(policies, this.addHookPolicies)
 
       // If no wildcard is set in config.permissions
-      const wildcard = sails.config.permissions['*']
-      const wildcardAlias = sails.config.permissions.all
+      const wildcard = permissions['*']
+      const wildcardAlias = permissions.all
 
       // Used in case of policy wildcard is a function instead of a boolean
       // Default is false
       if(wildcard === undefined && wildcardAlias === undefined){
-        sails.config.permissions['*'] = false
-        sails.config.permissions.all  = false
+        permissions['*'] = false
+        permissions.all  = false
 
       }else if(wildcard === undefined && wildcardAlias !== undefined){
-        sails.config.permissions['*'] = sails.config.permissions.all
+        permissions['*'] = permissions.all
 
       }else if(wildcard !== undefined && wildcardAlias === undefined){
-        sails.config.permissions.all = sails.config.permissions['*']
+        permissions.all = permissions['*']
       }
 
 
       // Check that no populate policy is set to true
-      this.checkPoliciesValidity(sails.config.permissions)
+      this.checkPoliciesValidity(permissions)
 
       sails.log.verbose('sails-role-permissions hook initialized')
       next()
