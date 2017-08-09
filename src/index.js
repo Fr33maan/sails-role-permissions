@@ -41,6 +41,18 @@ module.exports = function (sails) {
         permissions.all = permissions['*']
       }
 
+      // Lowercase any key in permission config as req.options are lowercased
+      _.each(permissions, (value, key) => {
+        if( typeof key === 'string' && key !== 'roles'){
+          permissions[key.toLowerCase()] = value
+        }
+
+        if (typeof value === 'object') {
+          _.each(value, (subValue, subKey) => {
+            if( typeof subKey === 'string' ) permissions[key.toLowerCase()][subKey.toLowerCase()] = subValue
+          })
+        }
+      })
 
       // Check that no populate policy is set to true
       this.checkPoliciesValidity(permissions)
