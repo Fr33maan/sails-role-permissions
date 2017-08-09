@@ -79,7 +79,7 @@ Contains configuration for a lower permission level.
 | Name  | Type  | Default | Description |
 |:---         |:---      |:---      |:---  |
 | * | `Boolean` or `role` | sails.config.policies['*'] if it is a `Boolean` or `false` | Will be used like wildcard policy, if a controller/action does not have permission set, wildcard will be used. Note that attributes are allowed by default to avoid having to make explicit allowing when wildcard is false |
-| roles | `Array` | ['admin', 'user'] | This is the place where you define the roles used by your app. **Don't remove/rename admin role it is needed**. |
+| roles | `Array` | ['admin', 'user'] | This is the place where you define the roles used by your app. **Don't remove/rename admin role as it is needed internaly by the module**. |
 | removeAutoAttributes | `Boolean` | `true` | Determine if `id`, `createdAt` and `updatedAt` attributes will be removed from req.body when `post` or `put` so user cannot set them. |
 
 Additionaly to those config attributes, you will set policies by controller :
