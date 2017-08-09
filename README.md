@@ -6,6 +6,9 @@ Focus on your business logic, stop writing code about users' permissions !
 
 SRP allows you to set controller/action/attribute permissions level with very minimalistic configuration.
 
+Visit and clone [the test repo](https://github.com/l1br3/sails-role-permissions-test-repo) to play with the hook.
+https://github.com/l1br3/sails-role-permissions-test-repo
+
 ## Installation
 
 **/!\ WARNING : This module is a security part of your app, a misconfiguration WILL create security issues. READ CAREFULLY the readme.**
