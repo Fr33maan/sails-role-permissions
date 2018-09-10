@@ -39,26 +39,17 @@ export default async function(req, rolesConfig){
 
     const container = modelInDb.owner
 
-    if(container instanceof Array){
+    if(!(container instanceof Array)) { container = [container]; }
 
-      for(let owner of container){
+    for(let owner of container){
 
-        // owner is an id
-        if(typeof owner === 'string'){
-          if(owner === userId) return true
+      // owner is an id
+      if(typeof owner === 'string'){
+        if(owner === userId) return true
 
-        // owner is an object and we expect an id parameter inside
-        }else if('id' in owner){
-          if(owner.id === userId) return true
-        }
-      }
-
-    }else{
-      if(typeof container === 'string'){
-        return container === userId
-
-      }else if('id' in container){
-        return container.id === userId
+      // owner is an object and we expect an id parameter inside
+      }else if('id' in owner){
+        if(owner.id === userId) return true
       }
     }
 
